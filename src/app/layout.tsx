@@ -14,7 +14,7 @@ const jetBrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Live Branch",
+  title: "Collabcode",
   description: "Real-time collaborative code editor",
 }
 

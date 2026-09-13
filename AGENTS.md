@@ -1,6 +1,6 @@
-# Live Branch
+# Collabcode
 
-Live Branch is a real-time collaborative code editor.
+Collabcode is a real-time collaborative code editor.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
