@@ -5,5 +5,9 @@ const code = `function hello() {
 }`
 
 export default function Home() {
-  return <File code={code} />
+  return (
+    <div className="h-dvh">
+      <File code={code} />
+    </div>
+  )
 }

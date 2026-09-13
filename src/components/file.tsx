@@ -17,5 +17,5 @@ export function File({ code }: { code: string }) {
     return () => editor.destroy()
   }, [code])
 
-  return <div className="bg-white" ref={parentRef} />
+  return <div ref={parentRef} className="h-full" />
 }
