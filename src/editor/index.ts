@@ -6,6 +6,7 @@ import { basicSetup } from "codemirror"
 const fullHeightTheme = EditorView.theme({
   "&": { height: "100%" },
   ".cm-scroller": { overflow: "auto" },
+  ".cm-content": { fontFamily: "var(--font-mono)" },
 })
 
 export class Editor {
