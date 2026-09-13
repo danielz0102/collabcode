@@ -34,4 +34,4 @@ When you consider that the plan is clear enough, move to the next step.
 
 ## Step 3: Specification
 
-Provide a list of the decisions made during the interview and offer to write a detailed specification. Write the specification file in the `spec` at the root of the project and mark it as `pending`.
+Provide a list of the decisions made during the interview and offer to write a detailed specification. When the user confirms, write the specification file in the `spec` at the root of the project and mark it as `pending`.
