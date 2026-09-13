@@ -1,3 +1,9 @@
+import { File } from "../components/file"
+
+const code = `function hello() {
+  console.log("Hello, world!")
+}`
+
 export default function Home() {
-  return <h1>Hello World</h1>
+  return <File code={code} />
 }
