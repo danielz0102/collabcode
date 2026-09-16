@@ -1,0 +1,20 @@
+{
+  "name": "server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "typescript": "^5",
+    "typescript-language-server": "^6.0.0",
+    "vscode-jsonrpc": "^9.0.2",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/ws": "^8",
+    "tsx": "^4",
+    "typescript": "^5"
+  }
+}

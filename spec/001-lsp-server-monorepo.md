@@ -1,7 +1,7 @@
 ---
 id: 001
 date: 13-09-2026
-status: pending
+status: completed
 ---
 
 # LSP Server and Monorepo Restructure
@@ -151,6 +151,7 @@ Depends on: nothing
 Depends on: 1
 
 Create `apps/server/src/index.ts`:
+
 ```ts
 import { WebSocketServer } from "ws"
 import { createLspBridge } from "./lsp.js"
@@ -168,6 +169,7 @@ console.log(`LSP bridge listening on ws://localhost:${port}`)
 ```
 
 Create `apps/server/src/lsp.ts`:
+
 ```ts
 import { spawn } from "node:child_process"
 import { StreamMessageReader, StreamMessageWriter } from "vscode-jsonrpc/node"
@@ -201,6 +203,7 @@ export function createLspBridge(ws: WebSocket) {
 ```
 
 Notes:
+
 - `spawn("typescript-language-server", ...)` relies on PATH; pnpm adds `apps/server/node_modules/.bin` to PATH when running the package's scripts. If resolution ever fails, resolve the binary explicitly with `createRequire(import.meta.url).resolve("typescript-language-server/package.json")` and join `lib/cli.mjs`.
 - ESM relative imports need the `.js` extension under `NodeNext`; `tsx` handles this in dev.
 
@@ -330,9 +333,9 @@ Depends on: 1
      name: string
      age: number
    }
-
+   
    const user: User = { name: "Alice", age: 30 }
-
+   
    // Place the cursor after "user." to see property completions
    user.
    `
@@ -360,18 +363,18 @@ The repo has no automated test framework configured, so verification is manual.
 
 ### Manual integration test
 
-| Use case | Input data | Expected output |
-|---|---|---|
-| LSP bridge starts | `pnpm dev:server` | Logs `LSP bridge listening on ws://localhost:3001` |
-| Web app starts | `pnpm dev:web` | App available at `http://localhost:3000` |
-| Editor connects to LSP | Open the page | No console errors; editor shows the TypeScript dummy content |
-| Completions work | Place cursor after `user.` in the dummy file | Autocomplete popup lists `age` and `name` properties |
-| Diagnostics work | Introduce a type error (e.g., `user.age = "x"`) | Error underline/diagnostic appears |
+| Use case               | Input data                                      | Expected output                                              |
+| ---------------------- | ----------------------------------------------- | ------------------------------------------------------------ |
+| LSP bridge starts      | `pnpm dev:server`                               | Logs `LSP bridge listening on ws://localhost:3001`           |
+| Web app starts         | `pnpm dev:web`                                  | App available at `http://localhost:3000`                     |
+| Editor connects to LSP | Open the page                                   | No console errors; editor shows the TypeScript dummy content |
+| Completions work       | Place cursor after `user.` in the dummy file    | Autocomplete popup lists `age` and `name` properties         |
+| Diagnostics work       | Introduce a type error (e.g., `user.age = "x"`) | Error underline/diagnostic appears                           |
 
 ## Checklist
 
-- [ ] Task 1: Convert to a pnpm monorepo
-- [ ] Task 2: Build the LSP bridge server
-- [ ] Task 3: Integrate the LSP client in the web app
-- [ ] Task 4: Verify (lint, format, manual test)
-- [ ] All tests pass
+- [x] Task 1: Convert to a pnpm monorepo
+- [x] Task 2: Build the LSP bridge server
+- [x] Task 3: Integrate the LSP client in the web app
+- [x] Task 4: Verify (lint, format, manual test)
+- [x] All tests pass
