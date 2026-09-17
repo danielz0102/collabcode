@@ -28,7 +28,7 @@ importers:
         version: 9.0.2
       ws:
         specifier: ^8.21.3
-        version: 8.21.3
+        version: 8.21.3(bufferutil@4.1.0)
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -45,6 +45,10 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
+    optionalDependencies:
+      bufferutil:
+        specifier: ^4.1.0
+        version: 4.1.0
 
   apps/web:
     dependencies:
@@ -1076,6 +1080,10 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+  bufferutil@4.1.0:
+    resolution: {integrity: sha512-ZMANVnAixE6AWWnPzlW2KpUrxhm9woycYvPOo67jWHyFowASTEd9s+QN1EIMsSDtwhIxN4sWE1jotpuDUIgyIw==}
+    engines: {node: '>=6.14.2'}
+
   caniuse-lite@1.0.30001810:
     resolution: {integrity: sha512-TITQPUkaz+aVk5GL6NhOdwk1aEaNTSDPsGFWrTuhKGtjTF70jL/Oht2W4c6rXUe5fu7Ie19VIahAXHIIiWWNeg==}
 
@@ -1223,6 +1231,10 @@ packages:
         optional: true
       sass:
         optional: true
+
+  node-gyp-build@4.8.4:
+    resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
+    hasBin: true
 
   oxfmt@0.67.0:
     resolution: {integrity: sha512-vV7sSiPsaO0mSxdoUdayipVDFPzW/UQ+hrezEHa20+Tx1dnMdZLSRHMT0PdS67FFbhd74M1n08asW21aLGeCrA==}
@@ -2014,6 +2026,11 @@ snapshots:
 
   baseline-browser-mapping@2.11.22: {}
 
+  bufferutil@4.1.0:
+    dependencies:
+      node-gyp-build: 4.8.4
+    optional: true
+
   caniuse-lite@1.0.30001810: {}
 
   client-only@0.0.1: {}
@@ -2157,6 +2174,9 @@ snapshots:
       - '@babel/core'
       - '@types/node'
       - babel-plugin-macros
+
+  node-gyp-build@4.8.4:
+    optional: true
 
   oxfmt@0.67.0:
     dependencies:
@@ -2344,6 +2364,8 @@ snapshots:
 
   w3c-keyname@2.2.8: {}
 
-  ws@8.21.3: {}
+  ws@8.21.3(bufferutil@4.1.0):
+    optionalDependencies:
+      bufferutil: 4.1.0
 
   zod@4.6.5: {}
