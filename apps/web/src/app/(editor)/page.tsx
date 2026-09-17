@@ -1,4 +1,4 @@
-import { File } from "../components/file"
+import { File } from "./file"
 
 const code = `interface User {
   name: string
@@ -11,7 +11,7 @@ const user: User = { name: "Alice", age: 30 }
 user.
 `
 
-export default function Home() {
+export default function Editor() {
   return (
     <div className="h-dvh">
       <File code={code} />
