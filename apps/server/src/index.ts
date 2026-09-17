@@ -28,16 +28,8 @@ wss.on("connection", (ws) => {
   })
 })
 
-function shutdown(signal: string) {
-  console.log(`[server] received ${signal}, shutting down`)
-  for (const client of wss.clients) client.close()
-  for (const bridge of bridges) bridge.dispose()
-  bridges.clear()
-  wss.close(() => process.exit(0))
-}
-
-process.on("SIGINT", () => shutdown("SIGINT"))
-process.on("SIGTERM", () => shutdown("SIGTERM"))
+process.on("SIGINT", shutdown)
+process.on("SIGTERM", shutdown)
 process.on("uncaughtException", (err) => {
   console.error("[fatal] uncaught exception:", err)
 })
@@ -45,3 +37,11 @@ process.on("uncaughtException", (err) => {
 console.log(
   `[server] LSP bridge listening on ws://localhost:${PORT} (max ${MAX_CONNECTIONS} connections)`
 )
+
+function shutdown() {
+  console.log(`[info] shutting down`)
+  for (const client of wss.clients) client.close()
+  for (const bridge of bridges) bridge.dispose()
+  bridges.clear()
+  wss.close(() => process.exit(0))
+}
