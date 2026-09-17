@@ -5,14 +5,14 @@ import { StreamMessageReader, StreamMessageWriter } from "vscode-jsonrpc/node"
 import { WebSocket } from "ws"
 
 const require = createRequire(import.meta.url)
-const languageServerCli = require.resolve("typescript-language-server/lib/cli.mjs")
+const languageServerCliPath = require.resolve("typescript-language-server/lib/cli.mjs")
 
 export interface LspBridge {
   dispose(): void
 }
 
 export function createLspBridge(ws: WebSocket): LspBridge {
-  const child = spawn(process.execPath, [languageServerCli, "--stdio"], {
+  const child = spawn(process.execPath, [languageServerCliPath, "--stdio"], {
     stdio: ["pipe", "pipe", "pipe"],
   })
   let available = true
