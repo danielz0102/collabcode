@@ -8,19 +8,19 @@ const bridges = new Set<LspBridge>()
 
 wss.on("connection", (ws) => {
   if (wss.clients.size > MAX_CONNECTIONS) {
-    console.warn(`[server] connection rejected, at capacity (${wss.clients.size})`)
+    console.warn(`[info] connection rejected, at capacity (${wss.clients.size})`)
     ws.close(1013, "Server at capacity")
     return
   }
 
   const bridge = createLspBridge(ws)
   bridges.add(bridge)
-  console.log(`[server] client connected (${wss.clients.size} active)`)
+  console.log(`[info] client connected (${wss.clients.size} active)`)
 
   ws.on("close", () => {
     bridge.dispose()
     bridges.delete(bridge)
-    console.log(`[server] client disconnected (${wss.clients.size} active)`)
+    console.log(`[info] client disconnected (${wss.clients.size} active)`)
   })
   ws.on("error", () => {
     bridge.dispose()
@@ -35,7 +35,7 @@ process.on("uncaughtException", (err) => {
 })
 
 console.log(
-  `[server] LSP bridge listening on ws://localhost:${PORT} (max ${MAX_CONNECTIONS} connections)`
+  `[info] LSP bridge listening on ws://localhost:${PORT} (max ${MAX_CONNECTIONS} connections)`
 )
 
 function shutdown() {
