@@ -9,16 +9,15 @@
     "checktypes": "tsc --noEmit"
   },
   "dependencies": {
-    "typescript": "^5",
     "typescript-language-server": "^6.0.0",
     "vscode-jsonrpc": "^9.0.2",
     "ws": "^8.21.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^26.6.1",
     "@types/ws": "^8",
     "tsx": "^4",
-    "typescript": "^5"
+    "typescript": "^7.0.2"
   }
 }
