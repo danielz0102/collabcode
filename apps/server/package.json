@@ -3,13 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "checktypes": "tsc --noEmit"
   },
   "dependencies": {
     "typescript": "^5",
     "typescript-language-server": "^6.0.0",
     "vscode-jsonrpc": "^9.0.2",
-    "ws": "^8.21.3"
+    "ws": "^8.21.3",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^20",

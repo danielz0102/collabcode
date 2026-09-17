@@ -29,6 +29,46 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Running the server in production
+
+The `apps/server` package is compiled to plain JS before running:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build:server
+```
+
+Then start it with:
+
+```bash
+NODE_ENV=production PORT=3001 pnpm --filter server start
+```
+
+Environment variables:
+
+| Variable         | Default | Description                                  |
+| ---------------- | ------- | -------------------------------------------- |
+| `PORT`           | `3001`  | Port the WebSocket server listens on         |
+| `MAX_CONNECTIONS`| `20`    | Max concurrent clients (each spawns an LSP process) |
+
+The server handles `SIGINT`/`SIGTERM` gracefully, disposing of child LSP processes before exiting. Example systemd unit:
+
+```ini
+[Unit]
+Description=Collabcode LSP bridge server
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/collabcode
+Environment=NODE_ENV=production
+Environment=PORT=3001
+ExecStart=/usr/bin/node apps/server/dist/index.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
