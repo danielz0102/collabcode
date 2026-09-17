@@ -4,6 +4,8 @@ import { oneDark } from "@codemirror/theme-one-dark"
 import { EditorView } from "@codemirror/view"
 import { basicSetup } from "codemirror"
 
+import { LSP_WS_URL } from "@/config/client"
+
 import { webSocketTransport } from "./transport"
 
 const fullHeightTheme = EditorView.theme({
@@ -12,7 +14,6 @@ const fullHeightTheme = EditorView.theme({
   ".cm-content": { fontFamily: "var(--font-mono)" },
 })
 
-const WS_URL = process.env.NEXT_PUBLIC_LSP_WS_URL ?? "ws://localhost:3001"
 const FILE_URI = "file:///workspace/main.ts"
 
 export class Editor {
@@ -33,7 +34,7 @@ export class Editor {
   }
 
   static async create(code: string, parent: HTMLElement): Promise<Editor> {
-    const transport = await webSocketTransport(WS_URL)
+    const transport = await webSocketTransport(LSP_WS_URL)
     const client = new LSPClient({
       extensions: languageServerExtensions(),
     }).connect(transport)
