@@ -7,12 +7,6 @@ import { WebSocket } from "ws"
 const require = createRequire(import.meta.url)
 const languageServerCli = require.resolve("typescript-language-server/lib/cli.mjs")
 
-function rawDataToString(data: WebSocket.RawData): string {
-  if (Array.isArray(data)) return Buffer.concat(data).toString()
-  if (Buffer.isBuffer(data)) return data.toString()
-  return Buffer.from(data).toString()
-}
-
 export interface LspBridge {
   dispose(): void
 }
@@ -71,4 +65,10 @@ export function createLspBridge(ws: WebSocket): LspBridge {
   }
 
   return { dispose }
+}
+
+function rawDataToString(data: WebSocket.RawData): string {
+  if (Array.isArray(data)) return Buffer.concat(data).toString()
+  if (Buffer.isBuffer(data)) return data.toString()
+  return Buffer.from(data).toString()
 }
