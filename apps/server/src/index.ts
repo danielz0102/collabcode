@@ -32,6 +32,7 @@ process.on("SIGINT", shutdown)
 process.on("SIGTERM", shutdown)
 process.on("uncaughtException", (err) => {
   console.error("[fatal] uncaught exception:", err)
+  process.exit(1)
 })
 
 console.log(
