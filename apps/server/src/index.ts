@@ -39,11 +39,7 @@ function shutdown(signal: string) {
 process.on("SIGINT", () => shutdown("SIGINT"))
 process.on("SIGTERM", () => shutdown("SIGTERM"))
 process.on("uncaughtException", (err) => {
-  console.error("[server] uncaught exception:", err)
-  process.exit(1)
-})
-process.on("unhandledRejection", (reason) => {
-  console.error("[server] unhandled rejection:", reason)
+  console.error("[fatal] uncaught exception:", err)
 })
 
 console.log(
