@@ -19,13 +19,13 @@ const FILE_URI = "file:///workspace/main.ts"
 export class Editor {
   private view: EditorView
 
-  private constructor(code: string, parent: HTMLElement, client: LSPClient) {
+  private constructor(code: string, parent: HTMLElement, lspClient: LSPClient) {
     this.view = new EditorView({
       doc: code,
       extensions: [
         basicSetup,
         typescriptLanguage,
-        client.plugin(FILE_URI, "typescript"),
+        lspClient.plugin(FILE_URI, "typescript"),
         fullHeightTheme,
         oneDark,
       ],
