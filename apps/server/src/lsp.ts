@@ -1,77 +1,64 @@
-import { spawn } from "node:child_process"
+import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process"
 import { createRequire } from "node:module"
 
-import { StreamMessageReader, StreamMessageWriter } from "vscode-jsonrpc/node"
-import { WebSocket } from "ws"
+import { StreamMessageReader, StreamMessageWriter, type Message } from "vscode-jsonrpc/node"
 
 const require = createRequire(import.meta.url)
 const languageServerCliPath = require.resolve("typescript-language-server/lib/cli.mjs")
 
-export interface LspBridge {
-  dispose(): void
+type LspServerOptions = {
+  onMessage: (message: Message) => void
+  onError?: (err: Error) => void
+  onExit?: () => void
 }
 
-export function createLspBridge(ws: WebSocket): LspBridge {
-  const child = spawn(process.execPath, [languageServerCliPath, "--stdio"])
-  let available = true
+export class LspServer {
+  private constructor(
+    private readonly child: ChildProcessWithoutNullStreams,
+    private readonly writer: StreamMessageWriter
+  ) {}
 
-  const reader = new StreamMessageReader(child.stdout)
-  const writer = new StreamMessageWriter(child.stdin)
+  static create({ onMessage, onError, onExit }: LspServerOptions): LspServer {
+    const child = spawn(process.execPath, [languageServerCliPath, "--stdio"])
+    const reader = new StreamMessageReader(child.stdout)
+    const writer = new StreamMessageWriter(child.stdin)
 
-  child.on("error", (err) => {
-    console.error(`[fatal] failed to spawn typescript-language-server: ${err.message}`)
-    available = false
-    ws.close()
-  })
-
-  reader.listen((message) => {
-    if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message))
-  })
-
-  ws.on("message", (data) => {
-    if (!available) return
-
-    const rpc = rawDataToString(data)
-
-    try {
-      void writer.write(JSON.parse(rpc)).catch((err) => {
-        console.error("[error] failed to write message to LSP server:", err)
-      })
-    } catch {
-      console.error("[error] invalid JSON message received:", rpc)
+    if (onError) {
+      child.on("error", onError)
     }
-  })
 
-  child.stderr.on("data", (chunk) => console.error(`[error] ${chunk.toString()}`))
-  child.on("exit", (code, signal) => {
-    available = false
-    if (code !== 0) console.warn(`[warn] child exited with ${code} and ${signal})`)
-    ws.close()
-  })
-
-  let disposed = false
-
-  function dispose(): void {
-    if (disposed) return
-    disposed = true
-    available = false
-
-    if (child.exitCode === null && child.signalCode === null) {
-      child.kill("SIGTERM")
-      const timer = setTimeout(() => {
-        if (child.exitCode === null && child.signalCode === null) {
-          child.kill("SIGKILL")
-        }
-      }, 5_000)
-      timer.unref()
+    if (onExit) {
+      child.on("exit", onExit)
     }
+
+    reader.listen(onMessage)
+
+    return new LspServer(child, writer)
   }
 
-  return { dispose }
-}
+  async receive(message: Message): Promise<void> {
+    if (!this.isRunning) {
+      return
+    }
 
-function rawDataToString(data: WebSocket.RawData): string {
-  if (Array.isArray(data)) return Buffer.concat(data).toString()
-  if (Buffer.isBuffer(data)) return data.toString()
-  return Buffer.from(data).toString()
+    await this.writer.write(message)
+  }
+
+  private get isRunning(): boolean {
+    return this.child.exitCode === null && this.child.signalCode === null
+  }
+
+  dispose(): void {
+    if (!this.isRunning) {
+      return
+    }
+
+    this.child.kill("SIGTERM")
+
+    setTimeout(() => {
+      if (this.isRunning) {
+        this.child.kill("SIGKILL")
+      }
+    }, 5000).unref()
+  }
 }

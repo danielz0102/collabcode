@@ -1,30 +1,54 @@
-import { WebSocketServer } from "ws"
+import { WebSocketServer, WebSocket } from "ws"
 
 import { MAX_CONNECTIONS, PORT } from "./config.js"
-import { createLspBridge, type LspBridge } from "./lsp.js"
+import { LspServer } from "./lsp.js"
 
 const wss = new WebSocketServer({ port: PORT })
-const bridges = new Set<LspBridge>()
+const servers = new Set<LspServer>()
 
 wss.on("connection", (ws) => {
   if (wss.clients.size > MAX_CONNECTIONS) {
-    console.warn(`[info] connection rejected, at capacity (${wss.clients.size})`)
+    console.warn(`[warn] connection rejected, at capacity (${wss.clients.size})`)
     ws.close(1013, "Server at capacity")
     return
   }
 
-  const bridge = createLspBridge(ws)
-  bridges.add(bridge)
+  const lsp = LspServer.create({
+    onMessage: (message) => {
+      if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message))
+    },
+    onError: (err) => {
+      console.error(`[fatal] failed to spawn typescript-language-server: ${err.message}`)
+      ws.close()
+    },
+    onExit: () => {
+      ws.close()
+    },
+  })
+
+  ws.on("message", (data) => {
+    const rpc = rawDataToString(data)
+
+    try {
+      lsp.receive(JSON.parse(rpc)).catch((err) => {
+        console.error("[error] failed to write message to LSP server:", err)
+      })
+    } catch {
+      console.error("[error] invalid JSON message received:", rpc)
+    }
+  })
+
+  servers.add(lsp)
   console.log(`[info] client connected (${wss.clients.size} active)`)
 
   ws.on("close", () => {
-    bridge.dispose()
-    bridges.delete(bridge)
+    lsp.dispose()
+    servers.delete(lsp)
     console.log(`[info] client disconnected (${wss.clients.size} active)`)
   })
   ws.on("error", () => {
-    bridge.dispose()
-    bridges.delete(bridge)
+    lsp.dispose()
+    servers.delete(lsp)
   })
 })
 
@@ -42,7 +66,13 @@ console.log(
 function shutdown() {
   console.log(`[info] shutting down`)
   for (const client of wss.clients) client.close()
-  for (const bridge of bridges) bridge.dispose()
-  bridges.clear()
+  for (const lsp of servers) lsp.dispose()
+  servers.clear()
   wss.close(() => process.exit(0))
+}
+
+function rawDataToString(data: WebSocket.RawData): string {
+  if (Array.isArray(data)) return Buffer.concat(data).toString()
+  if (Buffer.isBuffer(data)) return data.toString()
+  return Buffer.from(data).toString()
 }
