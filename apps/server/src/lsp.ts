@@ -30,10 +30,15 @@ export function createLspBridge(ws: WebSocket): LspBridge {
 
   ws.on("message", (data) => {
     if (!available) return
+
+    const rpc = rawDataToString(data)
+
     try {
-      void writer.write(JSON.parse(rawDataToString(data))).catch(() => {})
+      void writer.write(JSON.parse(rpc)).catch((err) => {
+        console.error("[error] failed to write message to LSP server:", err)
+      })
     } catch {
-      console.error("[lsp] dropping invalid JSON message from client")
+      console.error("[error] invalid JSON message received:", rpc)
     }
   })
 
