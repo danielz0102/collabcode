@@ -12,9 +12,7 @@ export interface LspBridge {
 }
 
 export function createLspBridge(ws: WebSocket): LspBridge {
-  const child = spawn(process.execPath, [languageServerCliPath, "--stdio"], {
-    stdio: ["pipe", "pipe", "pipe"],
-  })
+  const child = spawn(process.execPath, [languageServerCliPath, "--stdio"])
   let available = true
 
   const reader = new StreamMessageReader(child.stdout)
