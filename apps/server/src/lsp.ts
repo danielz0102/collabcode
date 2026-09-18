@@ -19,7 +19,7 @@ export function createLspBridge(ws: WebSocket): LspBridge {
   const writer = new StreamMessageWriter(child.stdin)
 
   child.on("error", (err) => {
-    console.error(`[lsp] failed to spawn typescript-language-server: ${err.message}`)
+    console.error(`[fatal] failed to spawn typescript-language-server: ${err.message}`)
     available = false
     ws.close()
   })
@@ -42,10 +42,10 @@ export function createLspBridge(ws: WebSocket): LspBridge {
     }
   })
 
-  child.stderr.on("data", (chunk) => console.error(`[lsp] ${chunk.toString()}`))
+  child.stderr.on("data", (chunk) => console.error(`[error] ${chunk.toString()}`))
   child.on("exit", (code, signal) => {
     available = false
-    if (code !== 0) console.warn(`[lsp] child exited (code=${code}, signal=${signal})`)
+    if (code !== 0) console.warn(`[warn] child exited with ${code} and ${signal})`)
     ws.close()
   })
 
