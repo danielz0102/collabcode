@@ -1,8 +1,10 @@
 import type { Transport } from "@codemirror/lsp-client"
 
-export function webSocketTransport(uri: string): Promise<Transport> {
+import { LSP_WS_URL } from "@/config/client"
+
+export function createWsTransport(): Promise<Transport> {
   let handlers: ((value: string) => void)[] = []
-  const sock = new WebSocket(uri)
+  const sock = new WebSocket(LSP_WS_URL)
   sock.onmessage = (e) => {
     for (const h of handlers) h(e.data.toString())
   }
@@ -19,6 +21,6 @@ export function webSocketTransport(uri: string): Promise<Transport> {
           handlers = handlers.filter((h) => h !== handler)
         },
       })
-    sock.onerror = () => reject(new Error(`WebSocket connection to ${uri} failed`))
+    sock.onerror = () => reject(new Error(`WebSocket connection to ${LSP_WS_URL} failed`))
   })
 }
