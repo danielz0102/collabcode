@@ -4,9 +4,9 @@ import { useEffect, useRef } from "react"
 
 import { Editor } from "@/editor"
 
-export function Document({ code }: { code: string }) {
+export function Document({ code, className }: { code: string; className?: string }) {
   const { containerRef } = useCodeEditor(code)
-  return <div ref={containerRef} className="h-full" />
+  return <div ref={containerRef} className={className} />
 }
 
 function useCodeEditor(code: string) {

@@ -1,4 +1,5 @@
-import { Document } from "./document"
+import { Document } from "./components/document"
+import { FileTree } from "./components/file-tree"
 
 const code = `interface User {
   name: string
@@ -13,8 +14,9 @@ user.
 
 export default function Editor() {
   return (
-    <div className="h-dvh">
-      <Document code={code} />
+    <div className="flex h-dvh">
+      <FileTree />
+      <Document code={code} className="flex-1" />
     </div>
   )
 }

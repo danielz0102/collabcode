@@ -73,6 +73,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.43.11
         version: 6.43.11
+      cn:
+        specifier: ^0.3.0
+        version: 0.3.0
       codemirror:
         specifier: ^6.0.2
         version: 6.0.2
@@ -970,6 +973,11 @@ packages:
   client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
 
+  cn@0.3.0:
+    resolution: {integrity: sha512-qRoU0ARrZD3Bbj1wKFftEKxPjSnzTEdFkf22NVhW+zU9D/wajhoP+qUZ5DChhhSOBCH1onV12hrmGqfu1+5Z2Q==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   codemirror@6.0.2:
     resolution: {integrity: sha512-VhydHotNW5w1UGK0Qj96BwSk/Zqbp9WbnyK2W/eVMv4QyF41INRGpjUhFJY7/uDNuudSc33a/PKr4iDqRduvHw==}
 
@@ -1854,6 +1862,8 @@ snapshots:
   caniuse-lite@1.0.30001810: {}
 
   client-only@0.0.1: {}
+
+  cn@0.3.0: {}
 
   codemirror@6.0.2:
     dependencies:
