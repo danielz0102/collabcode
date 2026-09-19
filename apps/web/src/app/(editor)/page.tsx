@@ -1,4 +1,4 @@
-import { File } from "./file"
+import { Document } from "./document"
 
 const code = `interface User {
   name: string
@@ -14,7 +14,7 @@ user.
 export default function Editor() {
   return (
     <div className="h-dvh">
-      <File code={code} />
+      <Document code={code} />
     </div>
   )
 }

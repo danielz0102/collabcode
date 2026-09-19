@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 
 import { Editor } from "@/editor"
 
-export function File({ code }: { code: string }) {
+export function Document({ code }: { code: string }) {
   const parentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
