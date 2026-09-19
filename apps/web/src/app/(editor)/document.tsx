@@ -5,17 +5,22 @@ import { useEffect, useRef } from "react"
 import { Editor } from "@/editor"
 
 export function Document({ code }: { code: string }) {
-  const parentRef = useRef<HTMLDivElement>(null)
+  const { containerRef } = useCodeEditor(code)
+  return <div ref={containerRef} className="h-full" />
+}
+
+function useCodeEditor(code: string) {
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!parentRef.current) {
-      throw new Error("Code editor parent ref is not set")
+    if (!containerRef.current) {
+      throw new Error("Code editor container ref is not set")
     }
 
     let editor: Editor | null = null
     let cancelled = false
 
-    Editor.create(code, parentRef.current)
+    Editor.create(code, containerRef.current)
       .then((created) => {
         if (cancelled) created.destroy()
         else editor = created
@@ -30,5 +35,5 @@ export function Document({ code }: { code: string }) {
     }
   }, [code])
 
-  return <div ref={parentRef} className="h-full" />
+  return { containerRef }
 }
