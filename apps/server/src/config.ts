@@ -2,7 +2,11 @@ import { loadEnvFile } from "node:process"
 
 import z from "zod"
 
-loadEnvFile()
+try {
+  loadEnvFile()
+} catch {
+  console.warn(".env file was not found")
+}
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),
