@@ -28,7 +28,10 @@ export function FileTree({ root, className }: FileTreeProps) {
 
   return (
     <aside
-      className={cn("relative overflow-hidden bg-neutral-800 text-sm", className)}
+      className={cn(
+        "relative border-r border-neutral-600 overflow-hidden bg-neutral-800 text-sm",
+        className
+      )}
       style={{ width }}
     >
       {root.children.map((child) => (
