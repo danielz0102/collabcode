@@ -1,42 +1,63 @@
 "use client"
 
 import { cn } from "cn"
-import { useState } from "react"
+import { useState, type PropsWithChildren } from "react"
 
 export function FileTree({ className }: { className?: string }) {
   const [width, setWidth] = useState(300)
 
   return (
-    <div
-      className={cn("relative shrink-0 overflow-hidden bg-neutral-800", className)}
+    <aside
+      className={cn("relative shrink-0 overflow-hidden bg-neutral-800 text-sm", className)}
       style={{ width }}
     >
-      <ResizeHandle currentWidth={width} setWidth={setWidth} />
-    </div>
+      <TreeNode name="main.ts" selected />
+      <TreeNode name="other.ts" />
+      <TreeNode name="my-folder">
+        <TreeNode name="nested.ts" />
+      </TreeNode>
+      <RightResizeHandle onHandleMove={(w) => setWidth(clamp(w))} />
+    </aside>
   )
 }
 
 const MIN_WIDTH = 160
 const MAX_WIDTH = 480
 
-function ResizeHandle({
-  currentWidth,
-  setWidth,
-}: {
-  currentWidth: number
-  setWidth: (width: number) => void
-}) {
+function clamp(width: number) {
+  return Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width))
+}
+
+type TreeNodeProps = PropsWithChildren<{
+  name: string
+  selected?: boolean
+}>
+
+function TreeNode({ name, selected, children }: TreeNodeProps) {
+  return (
+    <>
+      <button
+        className={cn(
+          "w-full text-left cursor-pointer hover:bg-neutral-600 p-1",
+          selected && "bg-neutral-600"
+        )}
+      >
+        {name}
+      </button>
+      {children}
+    </>
+  )
+}
+
+function RightResizeHandle({ onHandleMove }: { onHandleMove: (pos: number) => void }) {
   return (
     <div
       className="absolute inset-y-0 right-0 w-1 cursor-col-resize hover:bg-neutral-600 active:bg-neutral-500"
       onPointerDown={(event) => {
         event.preventDefault()
 
-        const startX = event.clientX
-
         const handlePointerMove = (moveEvent: PointerEvent) => {
-          const next = currentWidth + (moveEvent.clientX - startX)
-          setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, next)))
+          onHandleMove(moveEvent.clientX)
         }
 
         const handlePointerUp = () => {
