@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "cn"
-import { useState } from "react"
+import { useState, type PropsWithChildren } from "react"
 
 type FileNode = {
   type: "file"
@@ -58,11 +58,7 @@ function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: num
 }
 
 function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: number }) {
-  return (
-    <button className="ui-tree-item-button" style={{ paddingLeft: paddingLeft || 4 }}>
-      {node.name}
-    </button>
-  )
+  return <TreeItemButton paddingLeft={paddingLeft}>{node.name}</TreeItemButton>
 }
 
 function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?: number }) {
@@ -70,19 +66,32 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
 
   return (
     <>
-      <button
-        className="ui-tree-item-button"
-        style={{ paddingLeft: paddingLeft || 4 }}
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
+      <TreeItemButton paddingLeft={paddingLeft} onClick={() => setIsOpen((prev) => !prev)}>
         {node.name}
-      </button>
+      </TreeItemButton>
 
       {isOpen &&
         node.children.map((child) => (
           <TreeItem key={child.path} node={child} paddingLeft={16 + paddingLeft} />
         ))}
     </>
+  )
+}
+
+type TreeItemButtonProps = PropsWithChildren<{
+  paddingLeft?: number
+  onClick?: () => void
+}>
+
+function TreeItemButton({ paddingLeft = 0, onClick, children }: TreeItemButtonProps) {
+  return (
+    <button
+      className="w-full cursor-pointer p-1 text-left text-nowrap select-none hover:bg-neutral-600"
+      style={{ paddingLeft: paddingLeft || 4 }}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   )
 }
 
