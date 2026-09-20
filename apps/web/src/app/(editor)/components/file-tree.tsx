@@ -59,10 +59,7 @@ function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: num
 
 function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: number }) {
   return (
-    <button
-      className="w-full cursor-pointer p-1 text-left select-none hover:bg-neutral-600"
-      style={{ paddingLeft: paddingLeft || 4 }}
-    >
+    <button className="ui-tree-item-button" style={{ paddingLeft: paddingLeft || 4 }}>
       {node.name}
     </button>
   )
@@ -74,7 +71,7 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
   return (
     <>
       <button
-        className="w-full cursor-pointer p-1 text-left select-none hover:bg-neutral-600"
+        className="ui-tree-item-button"
         style={{ paddingLeft: paddingLeft || 4 }}
         onClick={() => setIsOpen((prev) => !prev)}
       >

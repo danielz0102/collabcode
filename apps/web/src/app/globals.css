@@ -24,3 +24,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+@utility ui-tree-item-button {
+  @apply w-full cursor-pointer p-1 text-left text-nowrap select-none hover:bg-neutral-600;
+}
