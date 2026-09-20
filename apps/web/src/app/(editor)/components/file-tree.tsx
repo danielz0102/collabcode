@@ -1,21 +1,39 @@
 "use client"
 
 import { cn } from "cn"
-import { useState, type PropsWithChildren } from "react"
+import { useState } from "react"
 
-export function FileTree({ className }: { className?: string }) {
+type FileNode = {
+  type: "file"
+  name: string
+  path: string
+}
+
+type FolderNode = {
+  type: "folder"
+  name: string
+  path: string
+  children: TreeNode[]
+}
+
+type TreeNode = FileNode | FolderNode
+
+type FileTreeProps = {
+  root: FolderNode
+  className?: string
+}
+
+export function FileTree({ root, className }: FileTreeProps) {
   const [width, setWidth] = useState(300)
 
   return (
     <aside
-      className={cn("relative shrink-0 overflow-hidden bg-neutral-800 text-sm", className)}
+      className={cn("relative overflow-hidden bg-neutral-800 text-sm", className)}
       style={{ width }}
     >
-      <TreeNode name="main.ts" selected />
-      <TreeNode name="other.ts" />
-      <TreeNode name="my-folder">
-        <TreeNode name="nested.ts" />
-      </TreeNode>
+      {root.children.map((child) => (
+        <TreeItem key={child.path} node={child} />
+      ))}
       <RightResizeHandle onHandleMove={(w) => setWidth(clamp(w))} />
     </aside>
   )
@@ -28,23 +46,42 @@ function clamp(width: number) {
   return Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width))
 }
 
-type TreeNodeProps = PropsWithChildren<{
-  name: string
-  selected?: boolean
-}>
+function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: number }) {
+  return node.type === "file" ? (
+    <FileItem node={node} paddingLeft={paddingLeft} />
+  ) : (
+    <FolderItem node={node} paddingLeft={paddingLeft} />
+  )
+}
 
-function TreeNode({ name, selected, children }: TreeNodeProps) {
+function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: number }) {
+  return (
+    <button
+      className="w-full cursor-pointer p-1 text-left select-none hover:bg-neutral-600"
+      style={{ paddingLeft: paddingLeft || 4 }}
+    >
+      {node.name}
+    </button>
+  )
+}
+
+function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?: number }) {
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
     <>
       <button
-        className={cn(
-          "w-full text-left cursor-pointer hover:bg-neutral-600 p-1",
-          selected && "bg-neutral-600"
-        )}
+        className="w-full cursor-pointer p-1 text-left select-none hover:bg-neutral-600"
+        style={{ paddingLeft: paddingLeft || 4 }}
+        onClick={() => setIsOpen((prev) => !prev)}
       >
-        {name}
+        {node.name}
       </button>
-      {children}
+
+      {isOpen &&
+        node.children.map((child) => (
+          <TreeItem key={child.path} node={child} paddingLeft={16 + paddingLeft} />
+        ))}
     </>
   )
 }
