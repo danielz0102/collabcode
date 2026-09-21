@@ -52,7 +52,7 @@ function clamp(width: number) {
 
 function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: number }) {
   return node.type === "file" ? (
-    <FileItem node={node} paddingLeft={paddingLeft} />
+    <FileItem node={node} paddingLeft={paddingLeft + 24} />
   ) : (
     <FolderItem node={node} paddingLeft={paddingLeft} />
   )
