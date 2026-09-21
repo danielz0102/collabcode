@@ -2,21 +2,6 @@
 
 import { useState, type PropsWithChildren } from "react"
 
-type FileNode = {
-  type: "file"
-  name: string
-  path: string
-}
-
-type FolderNode = {
-  type: "folder"
-  name: string
-  path: string
-  children: TreeNode[]
-}
-
-type TreeNode = FileNode | FolderNode
-
 export function Sidebar({ children }: PropsWithChildren) {
   const [width, setWidth] = useState(300)
 
