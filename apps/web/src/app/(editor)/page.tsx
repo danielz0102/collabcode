@@ -1,3 +1,5 @@
+import { FilePlusCorner } from "lucide-react"
+
 import { Document } from "./components/document"
 import { FileTree } from "./components/file-tree"
 import { Sidebar } from "./components/sidebar"
@@ -17,6 +19,11 @@ export default function Editor() {
   return (
     <div className="flex h-dvh">
       <Sidebar>
+        <div className="flex p-2">
+          <button className="cursor-pointer" aria-label="Add new file">
+            <FilePlusCorner size={16} />
+          </button>
+        </div>
         <FileTree
           root={{
             type: "folder",

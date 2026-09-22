@@ -1,7 +1,8 @@
 "use client"
 
+import { cn } from "cn"
 import { Folder, File, ChevronDown, ChevronRight } from "lucide-react"
-import { useState, type PropsWithChildren } from "react"
+import { createContext, useContext, useState, type PropsWithChildren } from "react"
 
 type FileNode = {
   type: "file"
@@ -19,7 +20,35 @@ type FolderNode = {
 type TreeNode = FileNode | FolderNode
 
 export function FileTree({ root }: { root: FolderNode }) {
-  return root.children.map((child) => <TreeItem key={child.path} node={child} />)
+  return (
+    <FileTreeProvider>
+      {root.children.map((child) => (
+        <TreeItem key={child.path} node={child} />
+      ))}
+    </FileTreeProvider>
+  )
+}
+
+type FileTreeContextValue = {
+  selectedPath: string | null
+  select: (path: string) => void
+}
+
+const FileTreeContext = createContext<FileTreeContextValue | null>(null)
+
+function FileTreeProvider({ children }: PropsWithChildren) {
+  const [selectedPath, setSelectedPath] = useState<string | null>(null)
+  return (
+    <FileTreeContext value={{ selectedPath, select: setSelectedPath }}>{children}</FileTreeContext>
+  )
+}
+
+function useFileTree() {
+  const context = useContext(FileTreeContext)
+  if (!context) {
+    throw new Error("useFileTree must be used within a FileTreeProvider")
+  }
+  return context
 }
 
 function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: number }) {
@@ -31,8 +60,13 @@ function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: num
 }
 
 function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: number }) {
+  const { selectedPath, select } = useFileTree()
   return (
-    <TreeItemButton paddingLeft={paddingLeft}>
+    <TreeItemButton
+      paddingLeft={paddingLeft}
+      isSelected={selectedPath === node.path}
+      onClick={() => select(node.path)}
+    >
       <File size={16} />
       {node.name}
     </TreeItemButton>
@@ -40,12 +74,20 @@ function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: num
 }
 
 function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?: number }) {
+  const { selectedPath, select } = useFileTree()
   const [isOpen, setIsOpen] = useState(false)
   const Arrow = isOpen ? ChevronDown : ChevronRight
 
   return (
     <>
-      <TreeItemButton paddingLeft={paddingLeft} onClick={() => setIsOpen((prev) => !prev)}>
+      <TreeItemButton
+        paddingLeft={paddingLeft}
+        isSelected={selectedPath === node.path}
+        onClick={() => {
+          select(node.path)
+          setIsOpen((prev) => !prev)
+        }}
+      >
         <Arrow size={16} />
         <Folder size={16} />
         {node.name}
@@ -62,12 +104,21 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
 type TreeItemButtonProps = PropsWithChildren<{
   paddingLeft?: number
   onClick?: () => void
+  isSelected?: boolean
 }>
 
-function TreeItemButton({ paddingLeft = 0, onClick, children }: TreeItemButtonProps) {
+function TreeItemButton({
+  paddingLeft = 0,
+  onClick,
+  isSelected = false,
+  children,
+}: TreeItemButtonProps) {
   return (
     <button
-      className="flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-600"
+      className={cn(
+        "flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-600",
+        isSelected && "bg-neutral-600"
+      )}
       style={{ paddingLeft: paddingLeft || 4 }}
       onClick={onClick}
     >
