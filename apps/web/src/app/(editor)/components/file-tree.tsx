@@ -114,8 +114,8 @@ function TreeItemButton({
   return (
     <button
       className={cn(
-        "flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-600",
-        isSelected && "bg-neutral-600"
+        "flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-700",
+        isSelected && "bg-neutral-700"
       )}
       style={{ paddingLeft: paddingLeft || 4 }}
       onClick={onClick}
