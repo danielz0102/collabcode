@@ -19,16 +19,6 @@ type FolderNode = {
 
 type TreeNode = FileNode | FolderNode
 
-export function FileTree({ root }: { root: FolderNode }) {
-  return (
-    <FileTreeProvider>
-      {root.children.map((child) => (
-        <TreeItem key={child.path} node={child} />
-      ))}
-    </FileTreeProvider>
-  )
-}
-
 type FileTreeContextValue = {
   selectedPath: string | null
   select: (path: string) => void
@@ -36,19 +26,26 @@ type FileTreeContextValue = {
 
 const FileTreeContext = createContext<FileTreeContextValue | null>(null)
 
-function FileTreeProvider({ children }: PropsWithChildren) {
-  const [selectedPath, setSelectedPath] = useState<string | null>(null)
-  return (
-    <FileTreeContext value={{ selectedPath, select: setSelectedPath }}>{children}</FileTreeContext>
-  )
-}
-
 function useFileTree() {
   const context = useContext(FileTreeContext)
+
   if (!context) {
-    throw new Error("useFileTree must be used within a FileTreeProvider")
+    throw new Error("useFileTree must be used within a FileTree")
   }
+
   return context
+}
+
+export function FileTree({ root }: { root: FolderNode }) {
+  const [selectedPath, setSelectedPath] = useState<string | null>(null)
+
+  return (
+    <FileTreeContext value={{ selectedPath, select: setSelectedPath }}>
+      {root.children.map((child) => (
+        <TreeItem key={child.path} node={child} />
+      ))}
+    </FileTreeContext>
+  )
 }
 
 function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: number }) {
@@ -61,6 +58,7 @@ function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: num
 
 function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: number }) {
   const { selectedPath, select } = useFileTree()
+
   return (
     <TreeItemButton
       paddingLeft={paddingLeft}
