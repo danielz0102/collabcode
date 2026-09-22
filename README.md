@@ -46,10 +46,10 @@ NODE_ENV=production PORT=3001 pnpm --filter server start
 
 Environment variables:
 
-| Variable         | Default | Description                                  |
-| ---------------- | ------- | -------------------------------------------- |
-| `PORT`           | `3001`  | Port the WebSocket server listens on         |
-| `MAX_CONNECTIONS`| `20`    | Max concurrent clients (each spawns an LSP process) |
+| Variable          | Default | Description                                         |
+| ----------------- | ------- | --------------------------------------------------- |
+| `PORT`            | `3001`  | Port the WebSocket server listens on                |
+| `MAX_CONNECTIONS` | `20`    | Max concurrent clients (each spawns an LSP process) |
 
 The server handles `SIGINT`/`SIGTERM` gracefully, disposing of child LSP processes before exiting. Example systemd unit:
 
