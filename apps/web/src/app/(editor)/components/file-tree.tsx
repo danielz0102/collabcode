@@ -36,8 +36,14 @@ function useFileTree() {
   return context
 }
 
-export function FileTree({ root }: { root: FolderNode }) {
-  const [selectedPath, setSelectedPath] = useState<string | null>(null)
+export function FileTree({
+  root,
+  initialSelectedPath = null,
+}: {
+  root: FolderNode
+  initialSelectedPath?: string | null
+}) {
+  const [selectedPath, setSelectedPath] = useState<string | null>(initialSelectedPath)
 
   return (
     <FileTreeContext value={{ selectedPath, select: setSelectedPath }}>

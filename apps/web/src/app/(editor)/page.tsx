@@ -25,6 +25,7 @@ export default function Editor() {
           </button>
         </div>
         <FileTree
+          initialSelectedPath="/my-folder/main.ts"
           root={{
             type: "folder",
             name: "my-folder",
