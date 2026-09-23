@@ -1,8 +1,8 @@
 "use client"
 
 import { cn } from "cn"
-import { Folder, File, ChevronDown, ChevronRight } from "lucide-react"
-import { createContext, useContext, useState, type PropsWithChildren } from "react"
+import { ChevronDown, ChevronRight, File, Folder } from "lucide-react"
+import { createContext, useContext, useState } from "react"
 
 type FileNode = {
   type: "file"
@@ -67,7 +67,7 @@ function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: num
 
   return (
     <TreeItemButton
-      paddingLeft={paddingLeft + 24}
+      style={{ paddingLeft: paddingLeft + 24 }}
       isSelected={selectedPath === node.path}
       onClick={() => select(node.path)}
     >
@@ -85,8 +85,8 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
   return (
     <>
       <TreeItemButton
-        paddingLeft={paddingLeft}
         isSelected={selectedPath === node.path}
+        style={{ paddingLeft }}
         onClick={() => {
           select(node.path)
           setIsOpen((prev) => !prev)
@@ -105,25 +105,20 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
   )
 }
 
-type TreeItemButtonProps = PropsWithChildren<{
-  paddingLeft?: number
+type TreeItemButtonProps = React.PropsWithChildren<{
   onClick?: () => void
   isSelected?: boolean
+  style?: React.CSSProperties
 }>
 
-function TreeItemButton({
-  paddingLeft = 0,
-  onClick,
-  isSelected = false,
-  children,
-}: TreeItemButtonProps) {
+function TreeItemButton({ onClick, isSelected = false, children, style }: TreeItemButtonProps) {
   return (
     <button
       className={cn(
         "flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-700",
         isSelected && "bg-neutral-700"
       )}
-      style={{ paddingLeft: paddingLeft || 4 }}
+      style={style}
       onClick={onClick}
     >
       {children}
