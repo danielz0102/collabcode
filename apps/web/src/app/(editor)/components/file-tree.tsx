@@ -54,9 +54,9 @@ export function FileTree({
   )
 }
 
-function TreeItem({ node, paddingLeft = 0 }: { node: TreeNode; paddingLeft?: number }) {
+function TreeItem({ node, paddingLeft }: { node: TreeNode; paddingLeft?: number }) {
   return node.type === "file" ? (
-    <FileItem node={node} paddingLeft={paddingLeft + 24} />
+    <FileItem node={node} paddingLeft={paddingLeft} />
   ) : (
     <FolderItem node={node} paddingLeft={paddingLeft} />
   )
@@ -67,7 +67,7 @@ function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: num
 
   return (
     <TreeItemButton
-      paddingLeft={paddingLeft}
+      paddingLeft={paddingLeft + 24}
       isSelected={selectedPath === node.path}
       onClick={() => select(node.path)}
     >
