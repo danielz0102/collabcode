@@ -67,7 +67,7 @@ function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: num
 
   return (
     <TreeItemButton
-      style={{ paddingLeft: paddingLeft + 24 }}
+      style={{ paddingLeft: paddingLeft + 20 }}
       isSelected={selectedPath === node.path}
       onClick={() => select(node.path)}
     >
@@ -99,7 +99,7 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
 
       {isOpen &&
         node.children.map((child) => (
-          <TreeItem key={child.path} node={child} paddingLeft={16 + paddingLeft} />
+          <TreeItem key={child.path} node={child} paddingLeft={paddingLeft + 16} />
         ))}
     </>
   )
