@@ -54,20 +54,20 @@ export function FileTree({
   )
 }
 
-function TreeItem({ node, paddingLeft }: { node: TreeNode; paddingLeft?: number }) {
+function TreeItem({ node, indent }: { node: TreeNode; indent?: number }) {
   return node.type === "file" ? (
-    <FileItem node={node} paddingLeft={paddingLeft} />
+    <FileItem node={node} indent={indent} />
   ) : (
-    <FolderItem node={node} paddingLeft={paddingLeft} />
+    <FolderItem node={node} indent={indent} />
   )
 }
 
-function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: number }) {
+function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
   const { selectedPath, select } = useFileTree()
 
   return (
     <TreeItemButton
-      style={{ paddingLeft: paddingLeft + 20 }}
+      style={{ paddingLeft: indent + 20 }}
       isSelected={selectedPath === node.path}
       onClick={() => select(node.path)}
     >
@@ -77,7 +77,7 @@ function FileItem({ node, paddingLeft = 0 }: { node: FileNode; paddingLeft?: num
   )
 }
 
-function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?: number }) {
+function FolderItem({ node, indent = 0 }: { node: FolderNode; indent?: number }) {
   const { selectedPath, select } = useFileTree()
   const [isOpen, setIsOpen] = useState(false)
   const Arrow = isOpen ? ChevronDown : ChevronRight
@@ -86,7 +86,7 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
     <>
       <TreeItemButton
         isSelected={selectedPath === node.path}
-        style={{ paddingLeft }}
+        style={{ paddingLeft: indent }}
         onClick={() => {
           select(node.path)
           setIsOpen((prev) => !prev)
@@ -99,7 +99,7 @@ function FolderItem({ node, paddingLeft = 0 }: { node: FolderNode; paddingLeft?:
 
       {isOpen &&
         node.children.map((child) => (
-          <TreeItem key={child.path} node={child} paddingLeft={paddingLeft + 16} />
+          <TreeItem key={child.path} node={child} indent={indent + 16} />
         ))}
     </>
   )
