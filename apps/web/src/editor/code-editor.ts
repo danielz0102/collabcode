@@ -14,7 +14,7 @@ const fullHeightTheme = EditorView.theme({
 
 const FILE_URI = "file:///workspace/main.ts"
 
-export class Editor {
+export class CodeEditor {
   private view: EditorView
 
   private constructor(code: string, parent: HTMLElement, lspClient: LSPClient) {
@@ -31,12 +31,12 @@ export class Editor {
     })
   }
 
-  static async create(code: string, parent: HTMLElement): Promise<Editor> {
+  static async create(code: string, parent: HTMLElement): Promise<CodeEditor> {
     const transport = await createWsTransport()
     const client = new LSPClient({
       extensions: languageServerExtensions(),
     }).connect(transport)
-    return new Editor(code, parent, client)
+    return new CodeEditor(code, parent, client)
   }
 
   destroy() {
