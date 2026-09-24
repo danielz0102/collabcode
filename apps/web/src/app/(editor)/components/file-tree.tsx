@@ -2,7 +2,13 @@
 
 import { cn } from "cn"
 import { ChevronDown, ChevronRight, File, Folder } from "lucide-react"
-import { createContext, useContext, useState } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  type ComponentProps,
+  type PropsWithChildren,
+} from "react"
 
 type FileNode = {
   type: "file"
@@ -105,21 +111,20 @@ function FolderItem({ node, indent = 0 }: { node: FolderNode; indent?: number })
   )
 }
 
-type TreeItemButtonProps = React.PropsWithChildren<{
-  onClick?: () => void
+type TreeItemButtonProps = PropsWithChildren<{
   isSelected?: boolean
-  style?: React.CSSProperties
-}>
+}> &
+  ComponentProps<"button">
 
-function TreeItemButton({ onClick, isSelected = false, children, style }: TreeItemButtonProps) {
+function TreeItemButton({ isSelected = false, children, className, ...rest }: TreeItemButtonProps) {
   return (
     <button
       className={cn(
         "flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-700",
-        isSelected && "bg-neutral-700"
+        isSelected && "bg-neutral-700",
+        className
       )}
-      style={style}
-      onClick={onClick}
+      {...rest}
     >
       {children}
     </button>
