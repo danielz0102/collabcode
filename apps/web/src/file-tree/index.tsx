@@ -38,14 +38,14 @@ export function FileTree({ root }: FileTreeProps) {
 
   return (
     <FileTreeContext value={{ select: (path) => setTree(tree.select(path)) }}>
-      {tree.root.children.map((child) => (
-        <TreeItem key={child.path} node={child} />
+      {tree.root.children.map((node) => (
+        <Node key={node.path} node={node} />
       ))}
     </FileTreeContext>
   )
 }
 
-function TreeItem({ node, indent }: { node: TreeNode; indent?: number }) {
+function Node({ node, indent }: { node: TreeNode; indent?: number }) {
   return node.type === "file" ? (
     <FileItem node={node} indent={indent} />
   ) : (
@@ -57,14 +57,14 @@ function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
   const { select } = useFileTree()
 
   return (
-    <TreeItemButton
+    <TreeItem
       style={{ paddingLeft: indent + 20 }}
       isSelected={node.selected}
       onClick={() => select(node.path)}
     >
       <FileIcon size={16} />
       {node.name}
-    </TreeItemButton>
+    </TreeItem>
   )
 }
 
@@ -75,7 +75,7 @@ function FolderItem({ node, indent = 0 }: { node: FolderNode; indent?: number })
 
   return (
     <>
-      <TreeItemButton
+      <TreeItem
         isSelected={node.selected}
         style={{ paddingLeft: indent }}
         onClick={() => {
@@ -86,24 +86,22 @@ function FolderItem({ node, indent = 0 }: { node: FolderNode; indent?: number })
         <ChevronIcon size={16} />
         <FolderIcon size={16} />
         {node.name}
-      </TreeItemButton>
+      </TreeItem>
 
-      {isOpen &&
-        node.children.map((child) => (
-          <TreeItem key={child.path} node={child} indent={indent + 16} />
-        ))}
+      {isOpen && node.children.map((n) => <Node key={n.path} node={n} indent={indent + 16} />)}
     </>
   )
 }
 
-type TreeItemButtonProps = PropsWithChildren<{
+type TreeItemProps = PropsWithChildren<{
   isSelected?: boolean
 }> &
-  ComponentProps<"button">
+  ComponentProps<"div">
 
-function TreeItemButton({ isSelected = false, children, className, ...rest }: TreeItemButtonProps) {
+function TreeItem({ isSelected = false, children, className, ...rest }: TreeItemProps) {
   return (
-    <button
+    <div
+      role="treeitem"
       className={cn(
         "flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-700",
         isSelected && "bg-neutral-700",
@@ -112,6 +110,6 @@ function TreeItemButton({ isSelected = false, children, className, ...rest }: Tr
       {...rest}
     >
       {children}
-    </button>
+    </div>
   )
 }
