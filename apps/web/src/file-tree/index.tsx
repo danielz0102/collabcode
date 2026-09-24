@@ -38,9 +38,11 @@ export function FileTree({ root }: FileTreeProps) {
 
   return (
     <FileTreeContext value={{ select: (path) => setTree(tree.select(path)) }}>
-      {tree.root.children.map((node) => (
-        <Node key={node.path} node={node} depth={0} />
-      ))}
+      <div role="tree">
+        {tree.root.children.map((n) => (
+          <Node key={n.path} node={n} depth={0} />
+        ))}
+      </div>
     </FileTreeContext>
   )
 }
@@ -63,13 +65,15 @@ function FileItem({ node, depth }: { node: FileNode; depth: number }) {
   const { select } = useFileTree()
 
   return (
-    <TreeItem
-      style={{ paddingLeft: computePadding(depth) + CHEVRON_SPACE_PX }}
-      isSelected={node.selected}
-      onClick={() => select(node.path)}
-    >
-      <FileIcon size={16} />
-      {node.name}
+    <TreeItem isSelected={node.selected}>
+      <TreeButton
+        style={{ paddingLeft: computePadding(depth) + CHEVRON_SPACE_PX }}
+        isSelected={node.selected}
+        onClick={() => select(node.path)}
+      >
+        <FileIcon size={16} />
+        {node.name}
+      </TreeButton>
     </TreeItem>
   )
 }
@@ -80,8 +84,8 @@ function FolderItem({ node, depth }: { node: FolderNode; depth: number }) {
   const ChevronIcon = isOpen ? ChevronDown : ChevronRight
 
   return (
-    <>
-      <TreeItem
+    <TreeItem isExpanded={isOpen} isSelected={node.selected}>
+      <TreeButton
         style={{ paddingLeft: computePadding(depth) }}
         isSelected={node.selected}
         aria-expanded={isOpen}
@@ -93,25 +97,37 @@ function FolderItem({ node, depth }: { node: FolderNode; depth: number }) {
         <ChevronIcon size={16} />
         <FolderIcon size={16} />
         {node.name}
-      </TreeItem>
+      </TreeButton>
+
       {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role */}
       <div role="group">
         {isOpen && node.children.map((n) => <Node key={n.path} node={n} depth={depth + 1} />)}
       </div>
-    </>
+    </TreeItem>
   )
 }
 
 type TreeItemProps = PropsWithChildren<{
+  isExpanded?: boolean
+  isSelected?: boolean
+}>
+
+function TreeItem({ isExpanded, isSelected, children }: TreeItemProps) {
+  return (
+    <div role="treeitem" aria-expanded={isExpanded} aria-selected={isSelected}>
+      {children}
+    </div>
+  )
+}
+
+type TreeButtonProps = PropsWithChildren<{
   isSelected?: boolean
 }> &
-  ComponentProps<"div">
+  ComponentProps<"span">
 
-function TreeItem({ isSelected = false, children, className, ...rest }: TreeItemProps) {
+function TreeButton({ isSelected = false, children, className, ...rest }: TreeButtonProps) {
   return (
-    <div
-      role="treeitem"
-      aria-selected={isSelected}
+    <span
       className={cn(
         "flex w-full cursor-pointer items-center gap-1 py-1 text-left text-nowrap select-none hover:bg-neutral-700",
         isSelected && "bg-neutral-700",
@@ -120,6 +136,6 @@ function TreeItem({ isSelected = false, children, className, ...rest }: TreeItem
       {...rest}
     >
       {children}
-    </div>
+    </span>
   )
 }
