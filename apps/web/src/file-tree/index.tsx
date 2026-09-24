@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "cn"
-import { ChevronDown, ChevronRight, File, Folder } from "lucide-react"
+import { ChevronDown, ChevronRight, FileIcon, FolderIcon } from "lucide-react"
 import {
   createContext,
   useContext,
@@ -10,48 +10,7 @@ import {
   type PropsWithChildren,
 } from "react"
 
-type FileNode = {
-  type: "file"
-} & CommonNodeProps
-
-type FolderNode = {
-  type: "folder"
-  children: TreeNode[]
-} & CommonNodeProps
-
-type CommonNodeProps = {
-  name: string
-  path: string
-  selected?: boolean
-}
-
-type TreeNode = FileNode | FolderNode
-
-class Tree {
-  constructor(public root: FolderNode) {}
-
-  select(path: string): Tree {
-    const newRoot = this.map(this.root, (node) => ({
-      ...node,
-      selected: node.path === path,
-    }))
-
-    return new Tree(newRoot)
-  }
-
-  private map<T extends TreeNode>(node: T, fn: <N extends TreeNode>(node: N) => N): T {
-    const updatedNode = fn(node)
-
-    if (updatedNode.type === "folder") {
-      return {
-        ...updatedNode,
-        children: updatedNode.children.map((c) => this.map(c, fn)),
-      }
-    }
-
-    return updatedNode
-  }
-}
+import { Tree, type FileNode, type FolderNode, type TreeNode } from "./tree"
 
 type FileTreeContextValue = {
   select: (path: string) => void
@@ -103,7 +62,7 @@ function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
       isSelected={node.selected}
       onClick={() => select(node.path)}
     >
-      <File size={16} />
+      <FileIcon size={16} />
       {node.name}
     </TreeItemButton>
   )
@@ -112,7 +71,7 @@ function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
 function FolderItem({ node, indent = 0 }: { node: FolderNode; indent?: number }) {
   const { select } = useFileTree()
   const [isOpen, setIsOpen] = useState(false)
-  const Arrow = isOpen ? ChevronDown : ChevronRight
+  const ChevronIcon = isOpen ? ChevronDown : ChevronRight
 
   return (
     <>
@@ -124,8 +83,8 @@ function FolderItem({ node, indent = 0 }: { node: FolderNode; indent?: number })
           setIsOpen((prev) => !prev)
         }}
       >
-        <Arrow size={16} />
-        <Folder size={16} />
+        <ChevronIcon size={16} />
+        <FolderIcon size={16} />
         {node.name}
       </TreeItemButton>
 

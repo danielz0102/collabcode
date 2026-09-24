@@ -1,7 +1,8 @@
 import { FilePlusCorner } from "lucide-react"
 
+import { FileTree } from "@/file-tree"
+
 import { Document } from "./components/document"
-import { FileTree } from "./components/file-tree"
 import { Sidebar } from "./components/sidebar"
 
 const code = `interface User {
