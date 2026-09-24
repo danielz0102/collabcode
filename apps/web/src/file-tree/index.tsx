@@ -39,26 +39,32 @@ export function FileTree({ root }: FileTreeProps) {
   return (
     <FileTreeContext value={{ select: (path) => setTree(tree.select(path)) }}>
       {tree.root.children.map((node) => (
-        <Node key={node.path} node={node} />
+        <Node key={node.path} node={node} depth={0} />
       ))}
     </FileTreeContext>
   )
 }
 
-function Node({ node, indent }: { node: TreeNode; indent?: number }) {
+function Node({ node, depth }: { node: TreeNode; depth: number }) {
   return node.type === "file" ? (
-    <FileItem node={node} indent={indent} />
+    <FileItem node={node} depth={depth} />
   ) : (
-    <FolderItem node={node} indent={indent} />
+    <FolderItem node={node} depth={depth} />
   )
 }
 
-function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
+const INDENT_PX = 16
+const INITIAL_PADDING = 4
+const CHEVRON_SPACE_PX = 20
+
+const computePadding = (depth: number) => INITIAL_PADDING + depth * INDENT_PX
+
+function FileItem({ node, depth }: { node: FileNode; depth: number }) {
   const { select } = useFileTree()
 
   return (
     <TreeItem
-      style={{ paddingLeft: indent + 20 }}
+      style={{ paddingLeft: computePadding(depth) + CHEVRON_SPACE_PX }}
       isSelected={node.selected}
       onClick={() => select(node.path)}
     >
@@ -68,7 +74,7 @@ function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
   )
 }
 
-function FolderItem({ node }: { node: FolderNode; indent?: number }) {
+function FolderItem({ node, depth }: { node: FolderNode; depth: number }) {
   const { select } = useFileTree()
   const [isOpen, setIsOpen] = useState(false)
   const ChevronIcon = isOpen ? ChevronDown : ChevronRight
@@ -76,6 +82,7 @@ function FolderItem({ node }: { node: FolderNode; indent?: number }) {
   return (
     <>
       <TreeItem
+        style={{ paddingLeft: computePadding(depth) }}
         isSelected={node.selected}
         aria-expanded={isOpen}
         onClick={() => {
@@ -88,8 +95,8 @@ function FolderItem({ node }: { node: FolderNode; indent?: number }) {
         {node.name}
       </TreeItem>
       {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role */}
-      <div role="group" className="pl-4">
-        {isOpen && node.children.map((n) => <Node key={n.path} node={n} />)}
+      <div role="group">
+        {isOpen && node.children.map((n) => <Node key={n.path} node={n} depth={depth + 1} />)}
       </div>
     </>
   )
@@ -106,7 +113,7 @@ function TreeItem({ isSelected = false, children, className, ...rest }: TreeItem
       role="treeitem"
       aria-selected={isSelected}
       className={cn(
-        "flex w-full cursor-pointer items-center gap-1 p-1 text-left text-nowrap select-none hover:bg-neutral-700",
+        "flex w-full cursor-pointer items-center gap-1 py-1 text-left text-nowrap select-none hover:bg-neutral-700",
         isSelected && "bg-neutral-700",
         className
       )}
