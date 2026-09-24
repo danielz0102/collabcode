@@ -12,21 +12,48 @@ import {
 
 type FileNode = {
   type: "file"
-  name: string
-  path: string
-}
+} & CommonNodeProps
 
 type FolderNode = {
   type: "folder"
+  children: TreeNode[]
+} & CommonNodeProps
+
+type CommonNodeProps = {
   name: string
   path: string
-  children: TreeNode[]
+  selected?: boolean
 }
 
 type TreeNode = FileNode | FolderNode
 
+class Tree {
+  constructor(public root: FolderNode) {}
+
+  select(path: string): Tree {
+    const newRoot = this.map(this.root, (node) => ({
+      ...node,
+      selected: node.path === path,
+    }))
+
+    return new Tree(newRoot)
+  }
+
+  private map<T extends TreeNode>(node: T, fn: <N extends TreeNode>(node: N) => N): T {
+    const updatedNode = fn(node)
+
+    if (updatedNode.type === "folder") {
+      return {
+        ...updatedNode,
+        children: updatedNode.children.map((c) => this.map(c, fn)),
+      }
+    }
+
+    return updatedNode
+  }
+}
+
 type FileTreeContextValue = {
-  selectedPath: string | null
   select: (path: string) => void
 }
 
@@ -42,18 +69,17 @@ function useFileTree() {
   return context
 }
 
-export function FileTree({
-  root,
-  initialSelectedPath = null,
-}: {
+type FileTreeProps = {
   root: FolderNode
-  initialSelectedPath?: string | null
-}) {
-  const [selectedPath, setSelectedPath] = useState<string | null>(initialSelectedPath)
+  onUpdate?: (root: FolderNode) => void
+}
+
+export function FileTree({ root }: FileTreeProps) {
+  const [tree, setTree] = useState(new Tree(root))
 
   return (
-    <FileTreeContext value={{ selectedPath, select: setSelectedPath }}>
-      {root.children.map((child) => (
+    <FileTreeContext value={{ select: (path) => setTree(tree.select(path)) }}>
+      {tree.root.children.map((child) => (
         <TreeItem key={child.path} node={child} />
       ))}
     </FileTreeContext>
@@ -69,12 +95,12 @@ function TreeItem({ node, indent }: { node: TreeNode; indent?: number }) {
 }
 
 function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
-  const { selectedPath, select } = useFileTree()
+  const { select } = useFileTree()
 
   return (
     <TreeItemButton
       style={{ paddingLeft: indent + 20 }}
-      isSelected={selectedPath === node.path}
+      isSelected={node.selected}
       onClick={() => select(node.path)}
     >
       <File size={16} />
@@ -84,14 +110,14 @@ function FileItem({ node, indent = 0 }: { node: FileNode; indent?: number }) {
 }
 
 function FolderItem({ node, indent = 0 }: { node: FolderNode; indent?: number }) {
-  const { selectedPath, select } = useFileTree()
+  const { select } = useFileTree()
   const [isOpen, setIsOpen] = useState(false)
   const Arrow = isOpen ? ChevronDown : ChevronRight
 
   return (
     <>
       <TreeItemButton
-        isSelected={selectedPath === node.path}
+        isSelected={node.selected}
         style={{ paddingLeft: indent }}
         onClick={() => {
           select(node.path)
