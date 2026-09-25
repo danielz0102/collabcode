@@ -3,6 +3,7 @@
 import { cn } from "cn"
 import { ChevronDown, ChevronRight, FileIcon, FolderIcon } from "lucide-react"
 import {
+  Activity,
   createContext,
   useContext,
   useState,
@@ -101,7 +102,11 @@ function FolderItem({ node, depth }: { node: FolderNode; depth: number }) {
 
       {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role */}
       <div role="group">
-        {isOpen && node.children.map((n) => <Node key={n.path} node={n} depth={depth + 1} />)}
+        <Activity mode={isOpen ? "visible" : "hidden"}>
+          {node.children.map((n) => (
+            <Node key={n.path} node={n} depth={depth + 1} />
+          ))}
+        </Activity>
       </div>
     </TreeItem>
   )
