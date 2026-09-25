@@ -89,7 +89,6 @@ function FolderItem({ node, depth }: { node: FolderNode; depth: number }) {
       <TreeButton
         style={{ paddingLeft: computePadding(depth) }}
         isSelected={node.selected}
-        aria-expanded={isOpen}
         onClick={() => {
           select(node.path)
           setIsOpen((prev) => !prev)
