@@ -1,7 +1,9 @@
 import { FilePlusCorner } from "lucide-react"
 
-import { Document } from "./components/document"
-import { FileTree } from "./components/file-tree"
+import { Document } from "@/editor"
+import type { Nodes } from "@/file-tree"
+import { FileTree } from "@/file-tree"
+
 import { Sidebar } from "./components/sidebar"
 
 const code = `interface User {
@@ -15,6 +17,30 @@ const user: User = { name: "Alice", age: 30 }
 user.
 `
 
+const nodes: Nodes = new Map([
+  ["/root", { name: "root", children: ["/root/nested-folder", "/root/main.ts"] }],
+  ["/root/main.ts", { name: "main.ts" }],
+  [
+    "/root/nested-folder",
+    {
+      name: "nested-folder",
+      children: ["/root/nested-folder/deeply-nested-folder", "/root/nested-folder/nested.ts"],
+    },
+  ],
+  ["/root/nested-folder/nested.ts", { name: "nested.ts" }],
+  [
+    "/root/nested-folder/deeply-nested-folder",
+    {
+      name: "deeply-nested-folder",
+      children: ["/root/nested-folder/deeply-nested-folder/deeply-nested-file.ts"],
+    },
+  ],
+  [
+    "/root/nested-folder/deeply-nested-folder/deeply-nested-file.ts",
+    { name: "deeply-nested-file.ts" },
+  ],
+])
+
 export default function Editor() {
   return (
     <div className="flex h-dvh">
@@ -24,45 +50,8 @@ export default function Editor() {
             <FilePlusCorner size={16} />
           </button>
         </div>
-        <FileTree
-          initialSelectedPath="/my-folder/main.ts"
-          root={{
-            type: "folder",
-            name: "my-folder",
-            path: "/my-folder",
-            children: [
-              {
-                type: "folder",
-                name: "nested-folder",
-                path: "/my-folder/nested-folder",
-                children: [
-                  {
-                    type: "folder",
-                    name: "deeply-nested-folder",
-                    path: "/my-folder/nested-folder/deeply-nested-folder",
-                    children: [
-                      {
-                        type: "file",
-                        name: "deeply-nested-file.ts",
-                        path: "/my-folder/nested-folder/deeply-nested-folder/deeply-nested-file.ts",
-                      },
-                    ],
-                  },
-                  {
-                    type: "file",
-                    name: "nested.ts",
-                    path: "/my-folder/nested-folder/nested.ts",
-                  },
-                ],
-              },
-              {
-                type: "file",
-                name: "main.ts",
-                path: "/my-folder/main.ts",
-              },
-            ],
-          }}
-        />
+        {/* <FileTree root={root} /> */}
+        <FileTree nodes={nodes} rootId="/root" />
       </Sidebar>
       <Document code={code} className="flex-1" />
     </div>

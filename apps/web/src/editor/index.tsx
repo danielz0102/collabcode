@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 
-import { Editor } from "@/editor"
+import { CodeEditor } from "./code-editor"
 
 export function Document({ code, className }: { code: string; className?: string }) {
   const { containerRef } = useCodeEditor(code)
@@ -17,10 +17,10 @@ function useCodeEditor(code: string) {
       throw new Error("Code editor container ref is not set")
     }
 
-    let editor: Editor | null = null
+    let editor: CodeEditor | null = null
     let cancelled = false
 
-    Editor.create(code, containerRef.current)
+    CodeEditor.create(code, containerRef.current)
       .then((created) => {
         if (cancelled) created.destroy()
         else editor = created
