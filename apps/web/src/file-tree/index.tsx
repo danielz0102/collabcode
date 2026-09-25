@@ -2,12 +2,15 @@
 "use no memo"
 
 import {
+  createOnDropHandler,
+  dragAndDropFeature,
   hotkeysCoreFeature,
+  keyboardDragAndDropFeature,
   selectionFeature,
   syncDataLoaderFeature,
   type ItemInstance,
 } from "@headless-tree/core"
-import { useTree } from "@headless-tree/react"
+import { AssistiveTreeDescription, useTree } from "@headless-tree/react"
 import { cn } from "cn"
 import { FileIcon, FolderClosed, FolderOpen } from "lucide-react"
 import type { ComponentProps, PropsWithChildren } from "react"
@@ -22,7 +25,13 @@ export type Nodes = Map<string, Node>
 const INITIAL_PADDING_PX = 8
 const INDENT_PX = 16
 
-export function FileTree({ nodes, rootId }: { nodes: Nodes; rootId: string }) {
+type FileTreeProps = {
+  nodes: Nodes
+  rootId: string
+  className?: string
+}
+
+export function FileTree({ nodes, rootId, className }: FileTreeProps) {
   const tree = useTree<Node>({
     rootItemId: rootId,
     initialState: {
@@ -31,11 +40,21 @@ export function FileTree({ nodes, rootId }: { nodes: Nodes; rootId: string }) {
     },
     getItemName: (item) => item.getItemData().name,
     isItemFolder: (item) => item.getItemData().children !== undefined,
+    canReorder: false,
+    onDrop: createOnDropHandler((item, newChildren) => {
+      item.getItemData().children = newChildren
+    }),
     dataLoader: {
       getItem: (id) => nodes.get(id)!,
       getChildren: (id) => nodes.get(id)?.children ?? [],
     },
-    features: [syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature],
+    features: [
+      syncDataLoaderFeature,
+      selectionFeature,
+      hotkeysCoreFeature,
+      dragAndDropFeature,
+      keyboardDragAndDropFeature,
+    ],
   })
 
   const Icon = (item: ItemInstance<Node>) => {
@@ -47,11 +66,15 @@ export function FileTree({ nodes, rootId }: { nodes: Nodes; rootId: string }) {
   }
 
   return (
-    <div {...tree.getContainerProps()}>
+    <div {...tree.getContainerProps()} className={className}>
+      <AssistiveTreeDescription tree={tree} />
       {tree.getItems().map((item) => (
         <TreeButton
           key={item.getId()}
           isSelected={item.isSelected()}
+          className={cn({
+            "bg-gray-600": item.isDragTarget(),
+          })}
           style={{ paddingLeft: item.getItemMeta().level * INDENT_PX + INITIAL_PADDING_PX }}
           {...item.getProps()}
         >
@@ -72,7 +95,7 @@ function TreeButton({ isSelected = false, children, className, ...rest }: TreeBu
   return (
     <button
       className={cn(
-        "w-full flex items-center gap-1 p-1 cursor-pointer text-left text-nowrap hover:bg-neutral-700 focus-visible:bg-neutral-900 focus-visible:outline-none",
+        "w-full flex items-center gap-1 p-1 cursor-pointer text-left text-nowrap hover:bg-neutral-700",
         isSelected && "bg-neutral-700",
         className
       )}
