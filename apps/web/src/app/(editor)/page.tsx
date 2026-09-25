@@ -50,7 +50,6 @@ export default function Editor() {
             <FilePlusCorner size={16} />
           </button>
         </div>
-        {/* <FileTree root={root} /> */}
         <FileTree nodes={nodes} rootId="/root" />
       </Sidebar>
       <Document code={code} className="flex-1" />

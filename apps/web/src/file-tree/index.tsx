@@ -19,6 +19,9 @@ export type Node = {
 
 export type Nodes = Map<string, Node>
 
+const INITIAL_PADDING_PX = 8
+const INDENT_PX = 16
+
 export function FileTree({ nodes, rootId }: { nodes: Nodes; rootId: string }) {
   const tree = useTree<Node>({
     rootItemId: rootId,
@@ -49,7 +52,7 @@ export function FileTree({ nodes, rootId }: { nodes: Nodes; rootId: string }) {
         <TreeButton
           key={item.getId()}
           isSelected={item.isSelected()}
-          style={{ paddingLeft: item.getItemMeta().level * 16 + 8 }}
+          style={{ paddingLeft: item.getItemMeta().level * INDENT_PX + INITIAL_PADDING_PX }}
           {...item.getProps()}
         >
           {Icon(item)}
