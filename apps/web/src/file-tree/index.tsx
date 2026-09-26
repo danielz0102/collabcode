@@ -96,6 +96,7 @@ function TreeButton({ isSelected = false, children, className, ...rest }: TreeBu
     <button
       className={cn(
         "w-full flex items-center gap-1 p-1 border-t border-b border-transparent cursor-pointer text-left text-nowrap hover:bg-neutral-700",
+        "focus:outline-none focus:bg-neutral-700",
         isSelected && "bg-neutral-700 border-neutral-600",
         className
       )}
