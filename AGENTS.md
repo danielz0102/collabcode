@@ -17,4 +17,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Guidelines
 
-- Always use Context7 to answer questions about CodeMirror, or to use the library.
+- Always use Context7 to use or answer questions about CodeMirror API or other libraries.

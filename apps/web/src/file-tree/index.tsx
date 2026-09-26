@@ -41,9 +41,11 @@ export function FileTree({ nodes, rootId, className, selectedId }: FileTreeProps
     getItemName: (item) => item.getItemData().name,
     isItemFolder: (item) => item.getItemData().children !== undefined,
     canReorder: false,
+    indent: 24,
     onDrop: createOnDropHandler((item, newChildren) => {
       item.getItemData().children = newChildren
     }),
+    canDrop: (_, target) => target.item.isFolder(),
     dataLoader: {
       getItem: (id) => nodes.get(id)!,
       getChildren: (id) => nodes.get(id)?.children ?? [],
@@ -57,6 +59,8 @@ export function FileTree({ nodes, rootId, className, selectedId }: FileTreeProps
     ],
   })
 
+  const dragTargetId = tree.getDragTarget()?.item.getId()
+
   const Icon = (item: ItemInstance<Node>) => {
     if (item.isFolder()) {
       return item.isExpanded() ? <FolderOpen size={16} /> : <FolderClosed size={16} />
@@ -68,13 +72,14 @@ export function FileTree({ nodes, rootId, className, selectedId }: FileTreeProps
   return (
     <div {...tree.getContainerProps()} className={className}>
       <AssistiveTreeDescription tree={tree} />
+
       {tree.getItems().map((item) => (
         <TreeButton
           key={item.getId()}
           isSelected={item.isSelected()}
-          className={cn({
-            "bg-gray-600": item.isDragTarget(),
-          })}
+          isInDragArea={
+            item.isDragTarget() || (dragTargetId !== undefined && item.isDescendentOf(dragTargetId))
+          }
           style={{ paddingLeft: item.getItemMeta().level * INDENT_PX + INITIAL_PADDING_PX }}
           {...item.getProps()}
         >
@@ -82,22 +87,34 @@ export function FileTree({ nodes, rootId, className, selectedId }: FileTreeProps
           {item.getItemData().name}
         </TreeButton>
       ))}
+
+      <div style={tree.getDragLineStyle()} className="dragline dragline-blue-400" />
     </div>
   )
 }
 
 type TreeButtonProps = PropsWithChildren<{
   isSelected?: boolean
+  isInDragArea?: boolean
 }> &
   ComponentProps<"button">
 
-function TreeButton({ isSelected = false, children, className, ...rest }: TreeButtonProps) {
+function TreeButton({
+  isSelected = false,
+  isInDragArea = false,
+  children,
+  className,
+  ...rest
+}: TreeButtonProps) {
   return (
     <button
       className={cn(
         "w-full flex items-center gap-1 p-1 border-t border-b border-transparent cursor-pointer text-left text-nowrap hover:bg-neutral-700",
         "focus:outline-none focus:bg-neutral-700",
-        isSelected && "bg-neutral-700 border-neutral-600",
+        {
+          "bg-neutral-700 border-neutral-600": isSelected,
+          "bg-blue-950": isInDragArea,
+        },
         className
       )}
       {...rest}
