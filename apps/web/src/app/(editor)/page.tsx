@@ -50,7 +50,7 @@ export default function Editor() {
             <FilePlusCorner size={16} />
           </button>
         </div>
-        <FileTree nodes={nodes} rootId="/root" className="h-full" />
+        <FileTree nodes={nodes} rootId="/root" selectedId="/root/main.ts" className="h-full" />
       </Sidebar>
       <Document code={code} className="flex-1" />
     </div>

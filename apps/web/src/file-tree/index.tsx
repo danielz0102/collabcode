@@ -29,14 +29,14 @@ type FileTreeProps = {
   nodes: Nodes
   rootId: string
   className?: string
+  selectedId?: string
 }
 
-export function FileTree({ nodes, rootId, className }: FileTreeProps) {
+export function FileTree({ nodes, rootId, className, selectedId }: FileTreeProps) {
   const tree = useTree<Node>({
     rootItemId: rootId,
     initialState: {
-      selectedItems: [rootId],
-      expandedItems: [rootId],
+      selectedItems: selectedId ? [selectedId] : [],
     },
     getItemName: (item) => item.getItemData().name,
     isItemFolder: (item) => item.getItemData().children !== undefined,
@@ -95,8 +95,8 @@ function TreeButton({ isSelected = false, children, className, ...rest }: TreeBu
   return (
     <button
       className={cn(
-        "w-full flex items-center gap-1 p-1 cursor-pointer text-left text-nowrap hover:bg-neutral-700",
-        isSelected && "bg-neutral-700",
+        "w-full flex items-center gap-1 p-1 border-t border-b border-transparent cursor-pointer text-left text-nowrap hover:bg-neutral-700",
+        isSelected && "bg-neutral-700 border-neutral-600",
         className
       )}
       {...rest}
