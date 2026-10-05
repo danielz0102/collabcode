@@ -1,6 +1,4 @@
-"use client"
-
-import { Document } from "@/editor"
+import { CodeEditor } from "@/editor"
 
 const code = `interface User {
   name: string
@@ -13,10 +11,6 @@ const user: User = { name: "Alice", age: 30 }
 user.
 `
 
-export default function Editor() {
-  return (
-    <div className="flex h-dvh">
-      <Document code={code} className="flex-1" />
-    </div>
-  )
+export default function EditorPage() {
+  return <CodeEditor code={code} />
 }
