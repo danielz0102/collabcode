@@ -3,7 +3,7 @@ import { ServerIcon, CircleXIcon, Loader2Icon } from "lucide-react"
 import type { ComponentProps, PropsWithChildren } from "react"
 
 export function StatusBar({ children }: PropsWithChildren) {
-  return <div className="bg-background flex gap-2">{children}</div>
+  return <div className="bg-background flex gap-2 border-t border-t-neutral-700">{children}</div>
 }
 
 StatusBar.Lsp = ({ status }: { status: "connected" | "disconnected" | "loading" }) => {
