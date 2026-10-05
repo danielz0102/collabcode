@@ -38,8 +38,8 @@ StatusBar.Lsp = ({ status }: { status: "connected" | "disconnected" | "loading" 
 function StatusItem({
   label,
   className,
-  onClick,
   children,
+  ...props
 }: PropsWithChildren<{
   label?: string
 }> &
@@ -50,8 +50,8 @@ function StatusItem({
         "text-foreground-muted flex cursor-pointer gap-1 p-1 text-xs hover:bg-neutral-700",
         className
       )}
-      onClick={onClick}
       title={label}
+      {...props}
     >
       {children}
     </button>
