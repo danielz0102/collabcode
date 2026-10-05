@@ -1,6 +1,6 @@
 # Collabcode
 
-Collabcode is a real-time collaborative code editor. The project is a monorepo with two packages that are contained in the `apps` folder:
+Collabcode is a real-time collaborative code playground for the most popular programming languages. The project is a monorepo with two packages that are contained in the `apps` folder:
 
 - `apps/web`: Next.js web app, where the code editor lives
 - `apps/server`: Node.js server to handle WebSocket connections to LSP servers
