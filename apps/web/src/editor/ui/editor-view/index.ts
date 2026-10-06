@@ -15,15 +15,17 @@ const fullHeightTheme = EditorView.theme({
 const FILE_URI = "file:///workspace/main.ts"
 
 export class CodeEditor {
+  private lspClient: LSPClient
   private view: EditorView
 
-  private constructor(code: string, parent: HTMLElement, lspClient: LSPClient) {
+  constructor(code: string, parent: HTMLElement) {
+    this.lspClient = new LSPClient({ extensions: languageServerExtensions() })
     this.view = new EditorView({
       doc: code,
       extensions: [
         basicSetup,
         typescriptLanguage,
-        lspClient.plugin(FILE_URI, "typescript"),
+        this.lspClient.plugin(FILE_URI, "typescript"),
         fullHeightTheme,
         oneDark,
       ],
@@ -31,12 +33,12 @@ export class CodeEditor {
     })
   }
 
-  static async create(code: string, parent: HTMLElement): Promise<CodeEditor> {
+  async connect() {
+    if (this.lspClient.connected) return
+
     const transport = await createWsTransport()
-    const client = new LSPClient({
-      extensions: languageServerExtensions(),
-    }).connect(transport)
-    return new CodeEditor(code, parent, client)
+    this.lspClient.connect(transport)
+    await this.lspClient.initializing
   }
 
   destroy() {

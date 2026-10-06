@@ -10,21 +10,11 @@ export function useCodeEditor(code: string) {
       throw new Error("Code editor container ref is not set")
     }
 
-    let editor: CodeEditor | null = null
-    let cancelled = false
-
-    CodeEditor.create(code, containerRef.current)
-      .then((created) => {
-        if (cancelled) created.destroy()
-        else editor = created
-      })
-      .catch((error) => {
-        console.error("Failed to initialize code editor", error)
-      })
+    const editor = new CodeEditor(code, containerRef.current)
+    void editor.connect()
 
     return () => {
-      cancelled = true
-      editor?.destroy()
+      editor.destroy()
     }
   }, [code])
 
