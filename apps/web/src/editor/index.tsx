@@ -4,13 +4,13 @@ import { StatusBar } from "./ui/components/status-bar"
 import { useCodeEditor } from "./ui/hooks/use-code-editor"
 
 export function CodeEditor({ code }: { code: string }) {
-  const { containerRef } = useCodeEditor(code)
+  const { containerRef, status } = useCodeEditor(code)
 
   return (
     <div className="flex h-dvh flex-col">
       <div ref={containerRef} className="flex-1" />
       <StatusBar>
-        <StatusBar.Lsp status="connected" />
+        <StatusBar.Lsp status={status} />
       </StatusBar>
     </div>
   )

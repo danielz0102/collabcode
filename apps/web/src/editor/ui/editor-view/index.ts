@@ -42,6 +42,7 @@ export class CodeEditor {
   }
 
   destroy() {
+    this.lspClient.disconnect()
     this.view.destroy()
   }
 }
