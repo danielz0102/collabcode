@@ -1,5 +1,5 @@
 import { cn } from "cn"
-import { ServerIcon, CircleXIcon, Loader2Icon } from "lucide-react"
+import { ServerIcon, CircleXIcon, Loader2Icon, type LucideIcon, ServerOffIcon } from "lucide-react"
 import type { ComponentProps, PropsWithChildren } from "react"
 
 import type { LspStatus } from "../types"
@@ -8,22 +8,29 @@ export function StatusBar({ children }: PropsWithChildren) {
   return <div className="bg-background flex gap-2 border-t border-t-neutral-700">{children}</div>
 }
 
-StatusBar.Lsp = ({ status }: { status: LspStatus }) => {
-  const label =
-    status === "loading"
-      ? "The LSP server is loading..."
-      : status === "connected"
-        ? "The LSP server has connected succesfully"
-        : "LSP server is not connected. Please check your connection and try again."
+const StatusIcon: Record<LspStatus, LucideIcon> = {
+  connected: ServerIcon,
+  disconnected: ServerOffIcon,
+  loading: Loader2Icon,
+  error: CircleXIcon,
+}
 
-  const Icon =
-    status === "loading" ? Loader2Icon : status === "connected" ? ServerIcon : CircleXIcon
+const StatusLabel: Record<LspStatus, string> = {
+  connected: "LSP server connected",
+  disconnected: "No LSP server connected",
+  loading: "LSP server is loading...",
+  error: "An error occurred while connecting to the LSP server",
+}
+
+StatusBar.Lsp = ({ status }: { status: LspStatus }) => {
+  const label = StatusLabel[status]
+  const Icon = StatusIcon[status]
 
   return (
     <StatusItem
       label={label}
       className={cn({
-        "text-red-700": status === "disconnected",
+        "text-red-700": status === "error",
       })}
     >
       <Icon className={cn("size-4", { "animate-spin": status === "loading" })} />
