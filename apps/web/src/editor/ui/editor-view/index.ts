@@ -1,5 +1,5 @@
 import { typescriptLanguage } from "@codemirror/lang-javascript"
-import { LSPClient, languageServerExtensions } from "@codemirror/lsp-client"
+import { languageServerExtensions, LSPClient } from "@codemirror/lsp-client"
 import { oneDark } from "@codemirror/theme-one-dark"
 import { EditorView } from "@codemirror/view"
 import { basicSetup } from "codemirror"
@@ -15,6 +15,7 @@ const fullHeightTheme = EditorView.theme({
 const FILE_URI = "file:///workspace/main.ts"
 
 export class CodeEditor {
+  private socket?: WebSocket
   private lspClient: LSPClient
   private view: EditorView
 
@@ -33,16 +34,30 @@ export class CodeEditor {
     })
   }
 
-  async connect() {
+  connectLsp({ onConnect, onError }: { onConnect?: () => void; onError?: () => void }) {
     if (this.lspClient.connected) return
 
-    const transport = await createWsTransport()
-    this.lspClient.connect(transport)
-    await this.lspClient.initializing
+    createWsTransport()
+      .then(({ socket, transport }) => {
+        this.socket = socket
+
+        socket.addEventListener("error", () => {
+          onError?.()
+          this.destroy()
+        })
+
+        this.lspClient.connect(transport)
+        onConnect?.()
+      })
+      .catch((err) => {
+        console.error("Failed to connect to LSP server:", err)
+        onError?.()
+      })
   }
 
   destroy() {
     this.lspClient.disconnect()
+    this.socket?.close()
     this.view.destroy()
   }
 }

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react"
 
 import { CodeEditor } from "../editor-view"
+import type { LspStatus } from "../types"
 
 export function useCodeEditor(code: string) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [status, setStatus] = useState<"connected" | "disconnected" | "loading">("loading")
+  const [lspStatus, setLspStatus] = useState<LspStatus>("loading")
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -12,18 +13,20 @@ export function useCodeEditor(code: string) {
     }
 
     const editor = new CodeEditor(code, containerRef.current)
-    editor
-      .connect()
-      .then(() => setStatus("connected"))
-      .catch((e) => {
-        console.error("Error on editor connection", e)
-        setStatus("disconnected")
-      })
+    editor.connectLsp({
+      onConnect() {
+        setLspStatus("connected")
+      },
+      onError() {
+        setLspStatus("error")
+      },
+    })
 
     return () => {
+      setLspStatus("disconnected")
       editor.destroy()
     }
   }, [code])
 
-  return { containerRef, status }
+  return { containerRef, lspStatus }
 }

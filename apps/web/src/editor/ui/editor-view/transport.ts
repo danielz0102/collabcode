@@ -4,33 +4,31 @@ import { LSP_WS_URL } from "@/config/client"
 
 type LspHandler = (message: string) => void
 
-export function createWsTransport(): Promise<Transport> {
-  const { promise, resolve, reject } = Promise.withResolvers<Transport>()
-
+export async function createWsTransport(): Promise<{ transport: Transport; socket: WebSocket }> {
+  const socket = new WebSocket(LSP_WS_URL)
   let handlers: LspHandler[] = []
-  const sock = new WebSocket(LSP_WS_URL)
 
-  sock.onmessage = (e: MessageEvent<string>) => {
-    handlers.forEach((h) => h(e.data))
+  socket.addEventListener("message", (e) => handlers.forEach((h) => h(e.data)))
+
+  const transport: Transport = {
+    send(message) {
+      socket.send(message)
+    },
+    subscribe(handler) {
+      handlers.push(handler)
+    },
+    unsubscribe(handler) {
+      handlers = handlers.filter((h) => h !== handler)
+    },
   }
 
-  sock.onopen = () => {
-    const transport: Transport = {
-      send(message) {
-        sock.send(message)
-      },
-      subscribe(handler) {
-        handlers.push(handler)
-      },
-      unsubscribe(handler) {
-        handlers = handlers.filter((h) => h !== handler)
-      },
-    }
+  const { promise, reject, resolve } = Promise.withResolvers<{
+    transport: Transport
+    socket: WebSocket
+  }>()
 
-    resolve(transport)
-  }
-
-  sock.onerror = () => reject(new Error(`WebSocket connection to ${LSP_WS_URL} failed`))
+  socket.addEventListener("open", () => resolve({ transport, socket }))
+  socket.addEventListener("error", () => reject())
 
   return promise
 }

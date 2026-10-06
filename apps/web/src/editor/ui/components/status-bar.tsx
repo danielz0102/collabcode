@@ -2,11 +2,13 @@ import { cn } from "cn"
 import { ServerIcon, CircleXIcon, Loader2Icon } from "lucide-react"
 import type { ComponentProps, PropsWithChildren } from "react"
 
+import type { LspStatus } from "../types"
+
 export function StatusBar({ children }: PropsWithChildren) {
   return <div className="bg-background flex gap-2 border-t border-t-neutral-700">{children}</div>
 }
 
-StatusBar.Lsp = ({ status }: { status: "connected" | "disconnected" | "loading" }) => {
+StatusBar.Lsp = ({ status }: { status: LspStatus }) => {
   const label =
     status === "loading"
       ? "The LSP server is loading..."
