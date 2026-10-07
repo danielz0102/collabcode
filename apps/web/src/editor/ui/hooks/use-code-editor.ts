@@ -16,20 +16,29 @@ export function useCodeEditor(code: string) {
     }
 
     const editor = new CodeEditor(code, containerRef.current)
+    const controller = new AbortController()
 
-    WebSocketTransport.create(LSP_WS_URL)
-      .then((transport) => {
+    WebSocketTransport.create(LSP_WS_URL, { signal: controller.signal })
+      .then((result) => {
+        if (!result.ok) {
+          if (result.error === "aborted") {
+            setLspStatus("disconnected")
+          }
+          return
+        }
+
+        const transport = result.data
+
         transport.onClose(() => setLspStatus("disconnected"))
         transport.onError(() => setLspStatus("error"))
 
         editor.connectLsp(transport)
         setLspStatus("connected")
       })
-      .catch(() => {
-        setLspStatus("error")
-      })
+      .catch(() => setLspStatus("error"))
 
     return () => {
+      controller.abort()
       setLspStatus("disconnected")
       editor.destroy()
     }

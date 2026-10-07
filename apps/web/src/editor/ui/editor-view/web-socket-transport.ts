@@ -1,5 +1,9 @@
 import type { Transport } from "@codemirror/lsp-client"
 
+import { Result } from "@/shared/result"
+
+type WsTransportError = "aborted"
+
 export class WebSocketTransport implements Transport {
   private readonly handlers = new Set<(data: string) => void>()
 
@@ -7,12 +11,35 @@ export class WebSocketTransport implements Transport {
     this.socket.addEventListener("message", (e) => this.handlers.forEach((h) => h(e.data)))
   }
 
-  static async create(url: string): Promise<WebSocketTransport> {
-    const { promise, reject, resolve } = Promise.withResolvers<WebSocketTransport>()
+  static async create(
+    url: string,
+    opts: { signal?: AbortSignal } = {}
+  ): Promise<Result<WebSocketTransport, WsTransportError>> {
+    const { signal } = opts
+    const { promise, reject, resolve } =
+      Promise.withResolvers<Result<WebSocketTransport, WsTransportError>>()
+
+    signal?.addEventListener(
+      "abort",
+      () => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.close()
+        }
+        resolve(Result.fail("aborted"))
+      },
+      { once: true }
+    )
+
     const socket = new WebSocket(url)
 
     socket.addEventListener("open", () => {
-      resolve(new WebSocketTransport(socket))
+      if (signal?.aborted) {
+        socket.close()
+        resolve(Result.fail("aborted"))
+        return
+      }
+
+      resolve(Result.ok(new WebSocketTransport(socket)))
     })
 
     socket.addEventListener("error", () => {
