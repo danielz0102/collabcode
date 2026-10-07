@@ -1,7 +1,7 @@
 "use client"
 
 import { StatusBar } from "./ui/components/status-bar"
-import { useCodeEditor } from "./ui/hooks/use-code-editor"
+import { useCodeEditor } from "./ui/editor-view"
 
 export function CodeEditor({ code }: { code: string }) {
   const { containerRef, lspStatus } = useCodeEditor(code)

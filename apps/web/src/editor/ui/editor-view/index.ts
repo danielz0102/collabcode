@@ -1,44 +1,48 @@
-import { typescriptLanguage } from "@codemirror/lang-javascript"
-import { languageServerExtensions, LSPClient, type Transport } from "@codemirror/lsp-client"
-import { oneDark } from "@codemirror/theme-one-dark"
-import { EditorView } from "@codemirror/view"
-import { basicSetup } from "codemirror"
+import { useEffect, useRef, useState } from "react"
 
-const fullHeightTheme = EditorView.theme({
-  "&": { height: "100%" },
-  ".cm-scroller": { overflow: "auto" },
-  ".cm-content": { fontFamily: "var(--font-mono)" },
-})
+import { LSP_WS_URL } from "@/config/client"
 
-const FILE_URI = "file:///workspace/main.ts"
+import type { LspStatus } from "../types"
+import { CodeEditor } from "./code-editor"
+import { WebSocketTransport } from "./web-socket-transport"
 
-export class CodeEditor {
-  private lspClient: LSPClient
-  private view: EditorView
+export function useCodeEditor(code: string) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [lspStatus, setLspStatus] = useState<LspStatus>("loading")
 
-  constructor(code: string, parent: HTMLElement) {
-    this.lspClient = new LSPClient({ extensions: languageServerExtensions() })
-    this.view = new EditorView({
-      doc: code,
-      extensions: [
-        basicSetup,
-        typescriptLanguage,
-        this.lspClient.plugin(FILE_URI, "typescript"),
-        fullHeightTheme,
-        oneDark,
-      ],
-      parent,
-    })
-  }
-
-  connectLsp(transport: Transport) {
-    if (!this.lspClient.connected) {
-      this.lspClient.connect(transport)
+  useEffect(() => {
+    if (!containerRef.current) {
+      throw new Error("Code editor container ref is not set")
     }
-  }
 
-  destroy() {
-    this.lspClient.disconnect()
-    this.view.destroy()
-  }
+    const editor = new CodeEditor(code, containerRef.current)
+    const controller = new AbortController()
+
+    WebSocketTransport.create(LSP_WS_URL, { signal: controller.signal })
+      .then((result) => {
+        if (!result.ok) {
+          if (result.error === "aborted") {
+            setLspStatus("disconnected")
+          }
+          return
+        }
+
+        const transport = result.data
+
+        transport.onClose(() => setLspStatus("disconnected"))
+        transport.onError(() => setLspStatus("error"))
+
+        editor.connectLsp(transport)
+        setLspStatus("connected")
+      })
+      .catch(() => setLspStatus("error"))
+
+    return () => {
+      controller.abort()
+      setLspStatus("disconnected")
+      editor.destroy()
+    }
+  }, [code])
+
+  return { containerRef, lspStatus }
 }
