@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 
+import { LSP_WS_URL } from "@/config/client"
+
 import { CodeEditor } from "../editor-view"
+import { WebSocketTransport } from "../editor-view/web-socket-transport"
 import type { LspStatus } from "../types"
 
 export function useCodeEditor(code: string) {
@@ -13,14 +16,18 @@ export function useCodeEditor(code: string) {
     }
 
     const editor = new CodeEditor(code, containerRef.current)
-    editor.connectLsp({
-      onConnect() {
+
+    WebSocketTransport.create(LSP_WS_URL)
+      .then((transport) => {
+        transport.onClose(() => setLspStatus("disconnected"))
+        transport.onError(() => setLspStatus("error"))
+
+        editor.connectLsp(transport)
         setLspStatus("connected")
-      },
-      onError() {
+      })
+      .catch(() => {
         setLspStatus("error")
-      },
-    })
+      })
 
     return () => {
       setLspStatus("disconnected")
