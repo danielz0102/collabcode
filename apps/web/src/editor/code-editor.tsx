@@ -1,5 +1,6 @@
 "use client"
 
+import { OutputPanel } from "./components/output-panel"
 import { RunButton } from "./components/run-button"
 import { StatusBar } from "./components/status-bar"
 import { useCodeEditor } from "./editor-view/use-code-editor"
@@ -9,7 +10,10 @@ export function CodeEditor({ code }: { code: string }) {
 
   return (
     <div className="relative flex h-dvh flex-col">
-      <div ref={containerRef} className="flex-1" />
+      <div className="flex flex-1">
+        <main ref={containerRef} className="flex-1" />
+        <OutputPanel>5</OutputPanel>
+      </div>
       <RunButton />
       <StatusBar>
         <StatusBar.Lsp status={lspStatus} />
