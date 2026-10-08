@@ -1,8 +1,8 @@
 "use client"
 
-import { RunButton } from "./ui/components/run-button"
-import { StatusBar } from "./ui/components/status-bar"
-import { useCodeEditor } from "./ui/editor-view"
+import { RunButton } from "./components/run-button"
+import { StatusBar } from "./components/status-bar"
+import { useCodeEditor } from "./editor-view/use-code-editor"
 
 export function CodeEditor({ code }: { code: string }) {
   const { containerRef, lspStatus } = useCodeEditor(code)

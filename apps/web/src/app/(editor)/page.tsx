@@ -1,4 +1,4 @@
-import { CodeEditor } from "@/editor"
+import { CodeEditor } from "@/editor/code-editor"
 
 const code = `interface User {
   name: string
