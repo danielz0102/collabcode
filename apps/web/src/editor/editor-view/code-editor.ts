@@ -26,6 +26,7 @@ export class CodeEditor {
         this.lspClient.plugin(FILE_URI, "typescript"),
         fullHeightTheme,
         oneDark,
+        EditorView.lineWrapping,
       ],
       parent,
     })
