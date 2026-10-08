@@ -38,6 +38,10 @@ export class CodeEditor {
     }
   }
 
+  requestMeasure() {
+    this.view.requestMeasure()
+  }
+
   destroy() {
     this.lspClient.disconnect()
     this.view.destroy()

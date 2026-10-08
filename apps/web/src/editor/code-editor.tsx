@@ -6,13 +6,13 @@ import { StatusBar } from "./components/status-bar"
 import { useCodeEditor } from "./editor-view/use-code-editor"
 
 export function CodeEditor({ code }: { code: string }) {
-  const { containerRef, lspStatus } = useCodeEditor(code)
+  const { containerRef, lspStatus, requestResize } = useCodeEditor(code)
 
   return (
     <div className="relative flex h-dvh flex-col">
       <div className="flex flex-1">
         <main ref={containerRef} className="flex-1" />
-        <OutputPanel>5</OutputPanel>
+        <OutputPanel onResize={requestResize}>5</OutputPanel>
       </div>
       <RunButton />
       <StatusBar>

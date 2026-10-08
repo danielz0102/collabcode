@@ -2,7 +2,7 @@
 
 import { useRef, useState, type CSSProperties, type PropsWithChildren } from "react"
 
-export function OutputPanel({ children }: PropsWithChildren) {
+export function OutputPanel({ children, onResize }: PropsWithChildren<{ onResize?: () => void }>) {
   const [width, setWidth] = useState(400)
   const panelRef = useRef<HTMLBaseElement>(null)
 
@@ -11,7 +11,11 @@ export function OutputPanel({ children }: PropsWithChildren) {
     const rect = panelRef.current.getBoundingClientRect()
     // Panel is on the right, so width = right edge - mouse position
     const newWidth = rect.right - clientX
-    setWidth(newWidth)
+    const clamped = Math.max(50, Math.min(980, newWidth))
+    if (clamped !== width) {
+      onResize?.()
+    }
+    setWidth(clamped)
   }
 
   return (

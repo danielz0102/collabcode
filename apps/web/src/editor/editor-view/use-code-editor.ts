@@ -8,6 +8,7 @@ import { WebSocketTransport } from "./web-socket-transport"
 
 export function useCodeEditor(code: string) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<CodeEditor | null>(null)
   const [lspStatus, setLspStatus] = useState<LspStatus>("loading")
 
   useEffect(() => {
@@ -16,6 +17,7 @@ export function useCodeEditor(code: string) {
     }
 
     const editor = new CodeEditor(code, containerRef.current)
+    editorRef.current = editor
     const controller = new AbortController()
 
     WebSocketTransport.create(LSP_WS_URL, { signal: controller.signal })
@@ -41,8 +43,13 @@ export function useCodeEditor(code: string) {
       controller.abort()
       setLspStatus("disconnected")
       editor.destroy()
+      editorRef.current = null
     }
   }, [code])
 
-  return { containerRef, lspStatus }
+  const requestResize = () => {
+    editorRef.current?.requestMeasure()
+  }
+
+  return { containerRef, lspStatus, requestResize }
 }
