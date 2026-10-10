@@ -1,16 +1,14 @@
-import { CodeEditor } from "@/editor/code-editor"
+"use client"
 
-const code = `interface User {
-  name: string
-  age: number
-}
+import dynamic from "next/dynamic"
 
-const user: User = { name: "Alice", age: 30 }
-
-// Place the cursor after "user." to see property completions
-user.
-`
+const CodeEditorPage = dynamic(
+  () => import("@/editor/code-editor-page").then(({ CodeEditorPage }) => CodeEditorPage),
+  {
+    ssr: false,
+  }
+)
 
 export default function EditorPage() {
-  return <CodeEditor code={code} />
+  return <CodeEditorPage />
 }
