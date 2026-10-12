@@ -8,9 +8,11 @@ import {
 import Editor, { OnMount } from "@monaco-editor/react"
 import { MonacoBinding } from "y-monaco"
 
+import { LSP_WS_URL } from "@/config/client"
+
 export function CodeEditorPage() {
   return (
-    <HocuspocusProviderWebsocketComponent url="ws://localhost:3001">
+    <HocuspocusProviderWebsocketComponent url={LSP_WS_URL}>
       <HocuspocusRoom name="code-editor">
         <CodeEditor />
       </HocuspocusRoom>
