@@ -30,9 +30,7 @@ function CodeEditor() {
     const model = editor.getModel()
     if (!model) return
 
-    const binding = new MonacoBinding(yText, model, new Set([editor]), provider.awareness)
-
-    return () => binding.destroy()
+    new MonacoBinding(yText, model, new Set([editor]), provider.awareness)
   }
 
   return (
