@@ -26,7 +26,7 @@ function CodeEditor() {
   const handleOnMount: OnMount = (editor) => {
     if (!editor || !provider) return
 
-    const yText = provider.document.getText("monaco")
+    const yText = provider.document.getText("code-editor")
     const model = editor.getModel()
     if (!model) return
 

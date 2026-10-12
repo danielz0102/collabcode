@@ -12,7 +12,7 @@ const server = new Server({
   port: PORT,
   async onLoadDocument() {
     const ydoc = new Y.Doc()
-    ydoc.getText("monaco").insert(0, initialCode)
+    ydoc.getText("code-editor").insert(0, initialCode)
     return ydoc
   },
 })
