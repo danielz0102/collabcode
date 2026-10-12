@@ -41,3 +41,23 @@ body {
     border-radius: 99px;
   }
 }
+
+.yRemoteSelection {
+  background-color: rgba(100, 160, 255, 0.25);
+  border-radius: 2px;
+}
+
+.yRemoteSelectionHead {
+  position: absolute;
+  border-left: 2px solid #3b82f6;
+  height: 100%;
+}
+
+.yRemoteSelectionHead::after {
+  position: absolute;
+  content: "";
+  border: 3px solid #3b82f6;
+  border-radius: 4px;
+  left: -4px;
+  top: -2px;
+}
