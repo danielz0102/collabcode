@@ -1,12 +1,15 @@
 "use client"
 
+import { javascript } from "@codemirror/lang-javascript"
 import {
   HocuspocusProviderWebsocketComponent,
   HocuspocusRoom,
   useHocuspocusProvider,
 } from "@hocuspocus/provider-react"
-import Editor, { OnMount } from "@monaco-editor/react"
-import { MonacoBinding } from "y-monaco"
+import { vscodeDark } from "@uiw/codemirror-theme-vscode"
+import CodeMirror from "@uiw/react-codemirror"
+import { yCollab } from "y-codemirror.next"
+import * as Y from "yjs"
 
 import { LSP_WS_URL } from "@/config/client"
 
@@ -22,24 +25,18 @@ export function CodeEditorPage() {
 
 function CodeEditor() {
   const provider = useHocuspocusProvider()
-
-  const handleOnMount: OnMount = (editor) => {
-    if (!editor || !provider) return
-
-    const yText = provider.document.getText("code-editor")
-    const model = editor.getModel()
-    if (!model) return
-
-    new MonacoBinding(yText, model, new Set([editor]), provider.awareness)
-  }
+  const yText = provider.document.getText("code-editor")
 
   return (
     <div className="relative flex h-dvh flex-col">
-      <Editor
+      <CodeMirror
         className="flex-1"
-        defaultLanguage="typescript"
-        theme="vs-dark"
-        onMount={handleOnMount}
+        height="100%"
+        extensions={[
+          javascript({ typescript: true }),
+          yCollab(yText, provider.awareness, { undoManager: new Y.UndoManager(yText) }),
+        ]}
+        theme={vscodeDark}
       />
     </div>
   )
