@@ -10,7 +10,7 @@ try {
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),
-  MAX_CONNECTIONS: z.coerce.number().int().positive().default(20),
+  LSP_PORT: z.coerce.number().int().positive().default(3002),
 })
 
-export const { PORT, MAX_CONNECTIONS } = envSchema.parse(process.env)
+export const { PORT, LSP_PORT } = envSchema.parse(process.env)

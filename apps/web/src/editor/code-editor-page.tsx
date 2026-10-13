@@ -11,11 +11,11 @@ import CodeMirror from "@uiw/react-codemirror"
 import { yCollab } from "y-codemirror.next"
 import * as Y from "yjs"
 
-import { LSP_WS_URL } from "@/config/client"
+import { WS_URL } from "@/config/client"
 
 export function CodeEditorPage() {
   return (
-    <HocuspocusProviderWebsocketComponent url={LSP_WS_URL}>
+    <HocuspocusProviderWebsocketComponent url={WS_URL}>
       <HocuspocusRoom name="code-editor">
         <CodeEditor />
       </HocuspocusRoom>
