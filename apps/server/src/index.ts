@@ -1,20 +1,15 @@
-import { Server } from "@hocuspocus/server"
-import * as Y from "yjs"
+import { createServer } from "node:http"
+
+import express from "express"
 
 import { PORT } from "./config.js"
+import { initEditorWss } from "./servers/editor-wss.js"
 
-const initialCode = `function helloHocuspocus() {
-  console.log("hello")
-}`
+const app = express()
+const server = createServer(app)
 
-const server = new Server({
-  address: "localhost",
-  port: PORT,
-  async onLoadDocument() {
-    const ydoc = new Y.Doc()
-    ydoc.getText("code-editor").insert(0, initialCode)
-    return ydoc
-  },
+initEditorWss(server)
+
+server.listen(PORT, () => {
+  console.log(`Server listening on http://localhost:${PORT}`)
 })
-
-await server.listen()
