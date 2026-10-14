@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lsp-client": "^6.3.0",
     "@hocuspocus/provider": "^4.7.0",
     "@hocuspocus/provider-react": "^4.7.0",
     "@uiw/codemirror-theme-vscode": "^4.25.12",
