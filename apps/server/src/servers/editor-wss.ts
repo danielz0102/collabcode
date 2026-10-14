@@ -1,4 +1,4 @@
-import type { IncomingMessage, Server } from "node:http"
+import type { IncomingMessage } from "node:http"
 
 import { Logger } from "@hocuspocus/extension-logger"
 import { Hocuspocus } from "@hocuspocus/server"
@@ -8,7 +8,7 @@ const dummyCode = `function main() {
   console.log("Hello Hocuspocus!")
 }`
 
-export function initEditorWss(server: Server) {
+export function createEditorWss() {
   const wss = new WebSocketServer({ noServer: true })
   const hocuspocus = new Hocuspocus({
     extensions: [new Logger()],
@@ -39,11 +39,7 @@ export function initEditorWss(server: Server) {
     })
   })
 
-  server.on("upgrade", (req, socket, head) => {
-    wss.handleUpgrade(req, socket, head, (ws) => {
-      wss.emit("connection", ws, req)
-    })
-  })
+  return wss
 }
 
 function toWebRequest(request: IncomingMessage): Request {

@@ -15,7 +15,7 @@ import { WS_URL } from "@/config/client"
 
 export function CodeEditorPage() {
   return (
-    <HocuspocusProviderWebsocketComponent url={WS_URL}>
+    <HocuspocusProviderWebsocketComponent url={`${WS_URL}/editor`}>
       <HocuspocusRoom name="code-editor">
         <CodeEditor />
       </HocuspocusRoom>
