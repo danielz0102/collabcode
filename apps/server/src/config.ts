@@ -1,16 +1,13 @@
-import { loadEnvFile } from "node:process"
+import { loadEnvFile, env } from "node:process"
 
 import z from "zod"
 
-try {
+const areEnvVarsLoaded = env["PORT"] !== undefined
+
+if (!areEnvVarsLoaded) {
   loadEnvFile()
-} catch {
-  console.warn(".env file was not found")
 }
 
-const envSchema = z.object({
-  PORT: z.coerce.number().int().positive().default(3001),
-  LSP_PORT: z.coerce.number().int().positive().default(3002),
-})
+const envSchema = z.object({ PORT: z.coerce.number().int().positive().default(3001) })
 
-export const { PORT, LSP_PORT } = envSchema.parse(process.env)
+export const { PORT } = envSchema.parse(env)
