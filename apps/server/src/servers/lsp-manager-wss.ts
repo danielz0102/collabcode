@@ -1,5 +1,5 @@
 import { ErrorCodes, Message } from "vscode-jsonrpc"
-import { WebSocketServer } from "ws"
+import { WebSocketServer, type RawData } from "ws"
 
 import { Lsp } from "../lsps/lsp-process.js"
 import { handleTypescriptServerRequest, spawnTypescriptLspProcess } from "../lsps/typescript-lsp.js"
@@ -38,7 +38,7 @@ export function createLspWss() {
     ws.on("message", (data) => {
       let message: Message
       try {
-        message = JSON.parse(data.toString())
+        message = JSON.parse(toText(data))
       } catch {
         // The language server never sees unparseable input, so answer here.
         ws.send(
@@ -65,4 +65,16 @@ export function createLspWss() {
   })
 
   return wss
+}
+
+function toText(data: RawData): string {
+  if (data instanceof ArrayBuffer) {
+    return Buffer.from(data).toString()
+  }
+
+  if (Array.isArray(data)) {
+    return Buffer.concat(data).toString()
+  }
+
+  return data.toString()
 }
