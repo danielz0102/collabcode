@@ -10,16 +10,16 @@ export function createLspWss() {
   wss.on("connection", (ws, req) => {
     console.log(`[lsp] client connected from ${req.socket.remoteAddress}`)
 
-    const server = new LspProcess(spawnTypescriptLsp(), {
+    const lsp = new LspProcess(spawnTypescriptLsp(), {
       onServerRequest: handleTypescriptServerRequest,
     })
 
-    server.on("error", (error) => {
+    lsp.onError((error) => {
       console.error("[lsp] language server error", error)
       ws.close(1011, "Language server failed")
     })
 
-    server.on("exit", (code, signal) => {
+    lsp.onExit((code, signal) => {
       console.log(`[lsp] language server exited (code=${code} signal=${signal})`)
       if (ws.readyState === ws.OPEN) {
         ws.close()
@@ -28,7 +28,7 @@ export function createLspWss() {
 
     // Language server -> browser. The reader strips the `Content-Length`
     // framing and hands us plain JSON-RPC objects.
-    server.on("message", (message) => {
+    lsp.onMessage((message) => {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify(message))
       }
@@ -52,17 +52,17 @@ export function createLspWss() {
         return
       }
 
-      server.send(message)
+      lsp.send(message)
     })
 
     ws.on("close", (code, reason) => {
       console.log(`[lsp] client disconnected (${code} ${reason.toString()})`)
-      server.dispose()
+      lsp.dispose()
     })
 
     ws.on("error", (error) => {
       console.error("[lsp] socket error", error)
-      server.dispose()
+      lsp.dispose()
     })
   })
 

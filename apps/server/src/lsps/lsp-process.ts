@@ -12,7 +12,7 @@ import { StreamMessageReader, StreamMessageWriter } from "vscode-jsonrpc/node"
  */
 export type ServerRequestHandler = (message: RequestMessage) => unknown
 
-export interface LspProcessOptions {
+export type LspProcessOptions = {
   onServerRequest?: ServerRequestHandler
 }
 
@@ -23,7 +23,7 @@ export interface LspProcessOptions {
  * *which* language server to run (and how) stays in the language definitions,
  * and so the transport can be exercised with a fake process in tests.
  *
- * Messages decoded from the server are re-emitted as `message`; handing the
+ * Messages decoded from the server are delivered via `onMessage`; handing the
  * process to an `LspProcess` transfers ownership of its lifecycle — `dispose`
  * kills it.
  */
@@ -65,14 +65,21 @@ export class LspProcess {
     this.#process.kill()
   }
 
-  on(event: "message", listener: (message: Message) => void): this
-  on(event: "error", listener: (error: Error) => void): this
-  on(
-    event: "exit",
-    listener: (code: number | null, signal: NodeJS.Signals | null) => void
-  ): this
-  on(event: string, listener: (...args: any[]) => void): this {
-    this.#emitter.on(event, listener)
+  /** Registers a listener for messages decoded from the language server. */
+  onMessage(listener: (message: Message) => void): this {
+    this.#emitter.on("message", listener)
+    return this
+  }
+
+  /** Registers a listener for process, read, and write errors. */
+  onError(listener: (error: Error) => void): this {
+    this.#emitter.on("error", listener)
+    return this
+  }
+
+  /** Registers a listener for the language server process exiting. */
+  onExit(listener: (code: number | null, signal: NodeJS.Signals | null) => void): this {
+    this.#emitter.on("exit", listener)
     return this
   }
 
