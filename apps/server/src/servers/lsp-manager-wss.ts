@@ -1,36 +1,8 @@
-import { spawn } from "node:child_process"
-
 import { ErrorCodes, Message } from "vscode-jsonrpc"
-import { StreamMessageReader, StreamMessageWriter } from "vscode-jsonrpc/node"
 import { WebSocketServer } from "ws"
 
-const isWindows = process.platform === "win32"
-
-// Server-to-client requests that `@codemirror/lsp-client` does not implement.
-// The client answers *every* server request with `MethodNotFound` (see its
-// `receiveMessage`), which makes servers complain via `window/logMessage`
-// (tsc, for example, tries to register a config-file watcher on `initialized`).
-// We settle those requests here, on the client's behalf.
-const serverRequestHandlers: Record<string, (params: any) => unknown> = {
-  "client/registerCapability": () => null,
-  "client/unregisterCapability": () => null,
-  "window/workDoneProgress/create": () => null,
-  "window/showMessageRequest": () => null,
-  "workspace/workspaceFolders": () => null,
-  "workspace/configuration": (params) => (params?.items ?? []).map(() => null),
-}
-
-function spawnTypescriptLsp() {
-  return spawn(
-    isWindows ? "node_modules/typescript/bin/tsc" : "node_modules/.bin/tsc",
-    ["--lsp", "--stdio"],
-    {
-      cwd: process.cwd(),
-      stdio: ["pipe", "pipe", "inherit"],
-      shell: isWindows,
-    }
-  )
-}
+import { LspProcess } from "../lsps/lsp-process.js"
+import { handleTypescriptServerRequest, spawnTypescriptLsp } from "../lsps/typescript-lsp.js"
 
 export function createLspWss() {
   const wss = new WebSocketServer({ noServer: true })
@@ -38,11 +10,13 @@ export function createLspWss() {
   wss.on("connection", (ws, req) => {
     console.log(`[lsp] client connected from ${req.socket.remoteAddress}`)
 
-    const server = spawnTypescriptLsp()
+    const server = new LspProcess(spawnTypescriptLsp(), {
+      onServerRequest: handleTypescriptServerRequest,
+    })
 
     server.on("error", (error) => {
-      console.error("[lsp] failed to start language server", error)
-      ws.close(1011, "Language server failed to start")
+      console.error("[lsp] language server error", error)
+      ws.close(1011, "Language server failed")
     })
 
     server.on("exit", (code, signal) => {
@@ -52,31 +26,9 @@ export function createLspWss() {
       }
     })
 
-    const writer = new StreamMessageWriter(server.stdin)
-    const reader = new StreamMessageReader(server.stdout)
-
-    const writeToServer = (message: Message) => {
-      writer.write(message).catch((error) => {
-        console.error("[lsp] failed to write to language server", error)
-      })
-    }
-
     // Language server -> browser. The reader strips the `Content-Length`
     // framing and hands us plain JSON-RPC objects.
-    reader.listen((message) => {
-      if (Message.isRequest(message)) {
-        const handle = serverRequestHandlers[message.method]
-        if (handle) {
-          console.log(`[lsp] handling server request '${message.method}'`)
-          writeToServer({
-            jsonrpc: "2.0",
-            id: message.id,
-            result: handle(message.params),
-          } as unknown as Message)
-          return
-        }
-      }
-
+    server.on("message", (message) => {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify(message))
       }
@@ -100,17 +52,17 @@ export function createLspWss() {
         return
       }
 
-      writeToServer(message)
+      server.send(message)
     })
 
     ws.on("close", (code, reason) => {
       console.log(`[lsp] client disconnected (${code} ${reason.toString()})`)
-      server.kill()
+      server.dispose()
     })
 
     ws.on("error", (error) => {
       console.error("[lsp] socket error", error)
-      server.kill()
+      server.dispose()
     })
   })
 

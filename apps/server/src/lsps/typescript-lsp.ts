@@ -1,35 +1,46 @@
-import { spawn } from "node:child_process"
+import { spawn, type ChildProcess } from "node:child_process"
 
-const server = spawn(
-  process.platform === "win32" ? "node_modules/typescript/bin/tsc" : "node_modules/.bin/tsc",
-  ["--lsp", "--stdio"],
-  {
+import type { ServerRequestHandler } from "./lsp-process.js"
+
+const isWindows = process.platform === "win32"
+
+const tscBin = isWindows ? "node_modules/typescript/bin/tsc" : "node_modules/.bin/tsc"
+
+/** Spawns the TypeScript language server speaking LSP over stdio. */
+export function spawnTypescriptLsp(): ChildProcess {
+  return spawn(tscBin, ["--lsp", "--stdio"], {
     cwd: process.cwd(),
     stdio: ["pipe", "pipe", "inherit"],
-    shell: process.platform === "win32",
+    shell: isWindows,
+  })
+}
+
+// Server-to-client requests that `@codemirror/lsp-client` does not implement.
+// The client answers *every* server request with `MethodNotFound` (see its
+// `receiveMessage`), which makes servers complain via `window/logMessage`
+// (tsc, for example, tries to register a config-file watcher on `initialized`).
+// We settle those requests here, on the client's behalf.
+const serverRequestHandlers: Record<string, (params: any) => unknown> = {
+  "client/registerCapability": () => null,
+  "client/unregisterCapability": () => null,
+  "window/workDoneProgress/create": () => null,
+  "window/showMessageRequest": () => null,
+  "workspace/workspaceFolders": () => null,
+  "workspace/configuration": (params) => (params?.items ?? []).map(() => null),
+}
+
+/**
+ * Answers the server requests the browser client can't, so the server doesn't
+ * log errors. Returning `undefined` (for unknown methods) lets the request fall
+ * through to the client.
+ */
+export const handleTypescriptServerRequest: ServerRequestHandler = (message) => {
+  const handler = serverRequestHandlers[message.method]
+
+  if (!handler) {
+    return undefined
   }
-)
 
-server.on("error", console.error)
-server.on("exit", (code) => {
-  console.log("LSP exited:", code)
-})
-
-const message = {
-  jsonrpc: "2.0",
-  id: 1,
-  method: "initialize",
-  params: {
-    processId: process.pid,
-    rootUri: new URL(`file://${process.cwd()}/`).href,
-    capabilities: {},
-  },
+  console.log(`[lsp] handling server request '${message.method}'`)
+  return handler(message.params)
 }
-
-function sendLspMessage(message: any) {
-  const body = JSON.stringify(message)
-
-  server.stdin.write(`Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`)
-}
-
-sendLspMessage(message)
