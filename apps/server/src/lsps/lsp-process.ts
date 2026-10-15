@@ -1,8 +1,15 @@
-import { type ChildProcess } from "node:child_process"
+import { type ChildProcess, type ChildProcessByStdio } from "node:child_process"
 import { EventEmitter } from "node:events"
+import type { Readable, Writable } from "node:stream"
 
 import { Message, type RequestMessage } from "vscode-jsonrpc"
 import { StreamMessageReader, StreamMessageWriter } from "vscode-jsonrpc/node"
+
+/**
+ * A child process whose stdio is configured so that `stdin` and `stdout` are
+ * guaranteed to be present — i.e. spawned with `["pipe", "pipe", ...]`.
+ */
+export type LspChildProcess = ChildProcessByStdio<Writable, Readable, Readable | null>
 
 /**
  * Called for every request the language server sends to the client.
@@ -34,17 +41,11 @@ export class LspProcess {
   readonly #emitter = new EventEmitter()
   readonly #onServerRequest?: ServerRequestHandler
 
-  constructor(process: ChildProcess, options: LspProcessOptions = {}) {
-    const { stdin, stdout } = process
-
-    if (!stdin || !stdout) {
-      throw new Error("Language server process must expose stdin and stdout")
-    }
-
+  constructor(process: LspChildProcess, options: LspProcessOptions = {}) {
     this.#process = process
     this.#onServerRequest = options.onServerRequest
-    this.#reader = new StreamMessageReader(stdout)
-    this.#writer = new StreamMessageWriter(stdin)
+    this.#reader = new StreamMessageReader(process.stdout)
+    this.#writer = new StreamMessageWriter(process.stdin)
 
     process.on("error", (error) => this.#emitter.emit("error", error))
     process.on("exit", (code, signal) => this.#emitter.emit("exit", code, signal))

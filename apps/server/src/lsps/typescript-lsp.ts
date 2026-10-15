@@ -1,13 +1,11 @@
-import { spawn, type ChildProcess } from "node:child_process"
+import { spawn } from "node:child_process"
 
-import type { ServerRequestHandler } from "./lsp-process.js"
+import type { LspChildProcess, ServerRequestHandler } from "./lsp-process.js"
 
-const isWindows = process.platform === "win32"
+export function spawnTypescriptLsp(): LspChildProcess {
+  const isWindows = process.platform === "win32"
+  const tscBin = isWindows ? "node_modules/typescript/bin/tsc" : "node_modules/.bin/tsc"
 
-const tscBin = isWindows ? "node_modules/typescript/bin/tsc" : "node_modules/.bin/tsc"
-
-/** Spawns the TypeScript language server speaking LSP over stdio. */
-export function spawnTypescriptLsp(): ChildProcess {
   return spawn(tscBin, ["--lsp", "--stdio"], {
     cwd: process.cwd(),
     stdio: ["pipe", "pipe", "inherit"],
