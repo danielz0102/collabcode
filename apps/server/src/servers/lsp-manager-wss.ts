@@ -8,19 +8,18 @@ export function createLspWss() {
   const wss = new WebSocketServer({ noServer: true })
 
   wss.on("connection", (ws, req) => {
-    console.log(`[lsp] client connected from ${req.socket.remoteAddress}`)
+    console.log(`LSP client connected from ${req.socket.remoteAddress}`)
 
     const lsp = new LspProcess(spawnTypescriptLsp(), {
       onServerRequest: handleTypescriptServerRequest,
     })
 
     lsp.onError((error) => {
-      console.error("[lsp] language server error", error)
+      console.error(error)
       ws.close(1011, "Language server failed")
     })
 
-    lsp.onExit((code, signal) => {
-      console.log(`[lsp] language server exited (code=${code} signal=${signal})`)
+    lsp.onExit(() => {
       if (ws.readyState === ws.OPEN) {
         ws.close()
       }
@@ -55,13 +54,12 @@ export function createLspWss() {
       lsp.send(message)
     })
 
-    ws.on("close", (code, reason) => {
-      console.log(`[lsp] client disconnected (${code} ${reason.toString()})`)
+    ws.on("close", () => {
       lsp.dispose()
     })
 
     ws.on("error", (error) => {
-      console.error("[lsp] socket error", error)
+      console.error(error)
       lsp.dispose()
     })
   })

@@ -39,6 +39,5 @@ export const handleTypescriptServerRequest: ServerRequestHandler = (message) => 
     return undefined
   }
 
-  console.log(`[lsp] handling server request '${message.method}'`)
   return handler(message.params)
 }
