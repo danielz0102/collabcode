@@ -26,7 +26,7 @@ export type LspProcessOptions = {
  * process to an `LspProcess` transfers ownership of its lifecycle — `dispose`
  * kills it.
  */
-export class LspProcess {
+export class Lsp {
   private readonly reader: StreamMessageReader
   private readonly writer: StreamMessageWriter
   private readonly emitter = new EventEmitter()

@@ -2,7 +2,7 @@ import { spawn } from "node:child_process"
 
 import type { LspChildProcess, ServerRequestHandler } from "./lsp-process.js"
 
-export function spawnTypescriptLsp(): LspChildProcess {
+export function spawnTypescriptLspProcess(): LspChildProcess {
   const isWindows = process.platform === "win32"
   const tscBin = isWindows ? "node_modules/typescript/bin/tsc" : "node_modules/.bin/tsc"
 
