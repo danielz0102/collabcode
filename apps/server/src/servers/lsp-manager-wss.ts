@@ -1,7 +1,7 @@
 import { ErrorCodes, Message } from "vscode-jsonrpc"
 import { WebSocketServer, type RawData } from "ws"
 
-import { Lsp } from "../lsps/lsp-process.js"
+import { Lsp } from "../lsps/lsp.js"
 import { handleTypescriptServerRequest, spawnTypescriptLspProcess } from "../lsps/typescript-lsp.js"
 
 export function createLspWss() {
