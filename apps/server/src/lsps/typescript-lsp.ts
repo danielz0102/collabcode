@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process"
 
-import type { LspChildProcess, ServerRequestHandler } from "./lsp.js"
+import type { LspChildProcess } from "./lsp.js"
 
 export function spawnTypescriptLspProcess(): LspChildProcess {
   const isWindows = process.platform === "win32"
@@ -32,7 +32,7 @@ const serverRequestHandlers: Record<string, (params: any) => unknown> = {
  * log errors. Returning `undefined` (for unknown methods) lets the request fall
  * through to the client.
  */
-export const handleTypescriptServerRequest: ServerRequestHandler = (message) => {
+export const handleTypescriptServerRequest = (message: { method: string; params?: any }) => {
   const handler = serverRequestHandlers[message.method]
 
   if (!handler) {

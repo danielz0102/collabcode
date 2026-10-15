@@ -10,9 +10,18 @@ export function createLspWss() {
   wss.on("connection", (ws, req) => {
     console.log(`LSP client connected from ${req.socket.remoteAddress}`)
 
-    const lsp = new Lsp(spawnTypescriptLspProcess(), {
-      onServerRequest: handleTypescriptServerRequest,
-    })
+    const lsp = new Lsp(spawnTypescriptLspProcess())
+
+    const handleServerRequest = (message: Message): boolean => {
+      if (Message.isRequest(message)) {
+        const result = handleTypescriptServerRequest(message as any)
+        if (result !== undefined) {
+          lsp.send({ jsonrpc: "2.0", id: (message as any).id, result } as unknown as Message)
+          return true
+        }
+      }
+      return false
+    }
 
     lsp.onError((error) => {
       console.error(error)
@@ -26,6 +35,7 @@ export function createLspWss() {
     })
 
     lsp.onMessage((message) => {
+      if (handleServerRequest(message)) return
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify(message))
       }
