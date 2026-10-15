@@ -1,4 +1,4 @@
-import { type ChildProcess, type ChildProcessByStdio } from "node:child_process"
+import type { ChildProcessByStdio } from "node:child_process"
 import { EventEmitter } from "node:events"
 import type { Readable, Writable } from "node:stream"
 
@@ -27,58 +27,60 @@ export type LspProcessOptions = {
  * kills it.
  */
 export class LspProcess {
-  readonly #process: ChildProcess
-  readonly #reader: StreamMessageReader
-  readonly #writer: StreamMessageWriter
-  readonly #emitter = new EventEmitter()
-  readonly #onServerRequest?: ServerRequestHandler
+  private readonly reader: StreamMessageReader
+  private readonly writer: StreamMessageWriter
+  private readonly emitter = new EventEmitter()
+  //TODO: Rethink `onServerRequest`. LSP process shouldn't know what requests the client can handle.
+  private readonly onServerRequest?: ServerRequestHandler
 
-  constructor(process: LspChildProcess, options: LspProcessOptions = {}) {
-    this.#process = process
-    this.#onServerRequest = options.onServerRequest
-    this.#reader = new StreamMessageReader(process.stdout)
-    this.#writer = new StreamMessageWriter(process.stdin)
+  constructor(
+    private readonly process: LspChildProcess,
+    options: LspProcessOptions = {}
+  ) {
+    this.onServerRequest = options.onServerRequest
+    this.reader = new StreamMessageReader(process.stdout)
+    this.writer = new StreamMessageWriter(process.stdin)
 
-    process.on("error", (error) => this.#emitter.emit("error", error))
-    process.on("exit", (code, signal) => this.#emitter.emit("exit", code, signal))
+    process.on("error", (error) => this.emitter.emit("error", error))
+    process.on("exit", (code, signal) => this.emitter.emit("exit", code, signal))
 
-    this.#reader.onError((error) => this.#emitter.emit("error", error))
-    this.#reader.listen((message) => this.#receive(message))
+    this.reader.onError((error) => this.emitter.emit("error", error))
+    this.reader.listen((message) => this.receive(message))
   }
 
   /** Writes a message to the language server, adding the stdio framing. */
   send(message: Message): void {
-    this.#writer.write(message).catch((error) => this.#emitter.emit("error", error))
+    this.writer.write(message).catch((error) => this.emitter.emit("error", error))
   }
 
   /** Stops reading/writing and kills the underlying process. */
   dispose(): void {
-    this.#reader.dispose()
-    this.#writer.dispose()
-    this.#process.kill()
+    this.reader.dispose()
+    this.writer.dispose()
+    this.process.kill()
   }
 
   /** Registers a listener for messages decoded from the language server. */
   onMessage(listener: (message: Message) => void): this {
-    this.#emitter.on("message", listener)
+    this.emitter.on("message", listener)
     return this
   }
 
   /** Registers a listener for process, read, and write errors. */
   onError(listener: (error: Error) => void): this {
-    this.#emitter.on("error", listener)
+    this.emitter.on("error", listener)
     return this
   }
 
   /** Registers a listener for the language server process exiting. */
   onExit(listener: (code: number | null, signal: NodeJS.Signals | null) => void): this {
-    this.#emitter.on("exit", listener)
+    this.emitter.on("exit", listener)
     return this
   }
 
-  #receive(message: Message): void {
-    if (Message.isRequest(message) && this.#onServerRequest) {
-      const result = this.#onServerRequest(message)
+  private receive(message: Message): void {
+    if (Message.isRequest(message) && this.onServerRequest) {
+      const result = this.onServerRequest(message)
 
       if (result !== undefined) {
         this.send({ jsonrpc: "2.0", id: message.id, result } as unknown as Message)
@@ -86,6 +88,6 @@ export class LspProcess {
       }
     }
 
-    this.#emitter.emit("message", message)
+    this.emitter.emit("message", message)
   }
 }
