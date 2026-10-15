@@ -5,10 +5,6 @@ import type { Readable, Writable } from "node:stream"
 import { Message, type RequestMessage } from "vscode-jsonrpc"
 import { StreamMessageReader, StreamMessageWriter } from "vscode-jsonrpc/node"
 
-/**
- * A child process whose stdio is configured so that `stdin` and `stdout` are
- * guaranteed to be present — i.e. spawned with `["pipe", "pipe", ...]`.
- */
 export type LspChildProcess = ChildProcessByStdio<Writable, Readable, Readable | null>
 
 /**
@@ -25,10 +21,6 @@ export type LspProcessOptions = {
 
 /**
  * Speaks JSON-RPC with a language server over a child process' stdio.
- *
- * The process is injected rather than spawned here so that the decision of
- * *which* language server to run (and how) stays in the language definitions,
- * and so the transport can be exercised with a fake process in tests.
  *
  * Messages decoded from the server are delivered via `onMessage`; handing the
  * process to an `LspProcess` transfers ownership of its lifecycle — `dispose`

@@ -13,11 +13,11 @@ export function spawnTypescriptLsp(): LspChildProcess {
   })
 }
 
-// Server-to-client requests that `@codemirror/lsp-client` does not implement.
-// The client answers *every* server request with `MethodNotFound` (see its
-// `receiveMessage`), which makes servers complain via `window/logMessage`
-// (tsc, for example, tries to register a config-file watcher on `initialized`).
-// We settle those requests here, on the client's behalf.
+/* Server-to-client requests that `@codemirror/lsp-client` does not implement.
+ * The client answers *every* server request with `MethodNotFound`, which makes
+ * servers complain via `window/logMessage`.
+ * We settle those requests here, on the client's behalf.
+ */
 const serverRequestHandlers: Record<string, (params: any) => unknown> = {
   "client/registerCapability": () => null,
   "client/unregisterCapability": () => null,
