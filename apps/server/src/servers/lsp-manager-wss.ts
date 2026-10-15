@@ -25,22 +25,17 @@ export function createLspWss() {
       }
     })
 
-    // Language server -> browser. The reader strips the `Content-Length`
-    // framing and hands us plain JSON-RPC objects.
     lsp.onMessage((message) => {
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify(message))
       }
     })
 
-    // Browser -> language server. The writer adds the `Content-Length`
-    // framing the stdio server expects.
     ws.on("message", (data) => {
       let message: Message
       try {
         message = JSON.parse(toText(data))
       } catch {
-        // The language server never sees unparseable input, so answer here.
         ws.send(
           JSON.stringify({
             jsonrpc: "2.0",

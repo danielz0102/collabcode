@@ -48,7 +48,7 @@ export class Lsp {
     this.reader.listen((message) => this.receive(message))
   }
 
-  /** Writes a message to the language server, adding the stdio framing. */
+  /** Writes a message to the language server. */
   send(message: Message): void {
     this.writer.write(message).catch((error) => this.emitter.emit("error", error))
   }
@@ -60,7 +60,9 @@ export class Lsp {
     this.process.kill()
   }
 
-  /** Registers a listener for messages decoded from the language server. */
+  /** Registers a listener for messages decoded from the language server.
+   * The listener should send a response to the client.
+   */
   onMessage(listener: (message: Message) => void): this {
     this.emitter.on("message", listener)
     return this
