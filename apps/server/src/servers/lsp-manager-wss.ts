@@ -2,7 +2,12 @@ import { ErrorCodes, Message } from "vscode-jsonrpc"
 import { WebSocketServer, type RawData } from "ws"
 
 import { Lsp } from "../lsps/lsp.js"
-import { handleTypescriptServerRequest, spawnTypescriptLspProcess } from "../lsps/typescript-lsp.js"
+import { spawnTypescriptLspProcess } from "../lsps/typescript-lsp.js"
+import {
+  handledUnsupportedRequest,
+  isUnsupportedRequest,
+  type UnsupportedRequest,
+} from "../lsps/unsupported-server-requests.js"
 
 export function createLspWss() {
   const wss = new WebSocketServer({ noServer: true })
@@ -12,15 +17,9 @@ export function createLspWss() {
 
     const lsp = new Lsp(spawnTypescriptLspProcess())
 
-    const handleServerRequest = (message: Message): boolean => {
-      if (Message.isRequest(message)) {
-        const result = handleTypescriptServerRequest(message as any)
-        if (result !== undefined) {
-          lsp.send({ jsonrpc: "2.0", id: (message as any).id, result } as unknown as Message)
-          return true
-        }
-      }
-      return false
+    const interceptUnsupportedRequest = (req: UnsupportedRequest): void => {
+      const result = handledUnsupportedRequest(req)
+      lsp.send({ jsonrpc: "2.0", id: req.id, result } as unknown as Message)
     }
 
     lsp.onError((error) => {
@@ -35,7 +34,11 @@ export function createLspWss() {
     })
 
     lsp.onMessage((message) => {
-      if (handleServerRequest(message)) return
+      if (isUnsupportedRequest(message)) {
+        interceptUnsupportedRequest(message)
+        return
+      }
+
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify(message))
       }

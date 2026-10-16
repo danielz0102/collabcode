@@ -12,32 +12,3 @@ export function spawnTypescriptLspProcess(): LspChildProcess {
     shell: isWindows,
   })
 }
-
-/* Server-to-client requests that `@codemirror/lsp-client` does not implement.
- * The client answers *every* server request with `MethodNotFound`, which makes
- * servers complain via `window/logMessage`.
- * We settle those requests here, on the client's behalf.
- */
-const serverRequestHandlers: Record<string, (params: any) => unknown> = {
-  "client/registerCapability": () => null,
-  "client/unregisterCapability": () => null,
-  "window/workDoneProgress/create": () => null,
-  "window/showMessageRequest": () => null,
-  "workspace/workspaceFolders": () => null,
-  "workspace/configuration": (params) => (params?.items ?? []).map(() => null),
-}
-
-/**
- * Answers the server requests the browser client can't, so the server doesn't
- * log errors. Returning `undefined` (for unknown methods) lets the request fall
- * through to the client.
- */
-export const handleTypescriptServerRequest = (message: { method: string; params?: any }) => {
-  const handler = serverRequestHandlers[message.method]
-
-  if (!handler) {
-    return undefined
-  }
-
-  return handler(message.params)
-}
