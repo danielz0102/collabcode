@@ -10,25 +10,26 @@ export type LspChildProcess = ChildProcessByStdio<Writable, Readable, Readable |
 /**
  * Speaks JSON-RPC with a language server over a child process' stdio.
  *
- * Messages decoded from the server are delivered via `onMessage`; handing the
- * process to an `LspProcess` transfers ownership of its lifecycle — `dispose`
- * kills it.
+ * Messages decoded from the server are delivered via `onMessage`. Subclasses
+ * provide the process to communicate with by implementing `spawnProcess`;
+ * `dispose` kills it.
  */
-export class Lsp {
-  private readonly reader: StreamMessageReader
-  private readonly writer: StreamMessageWriter
+export abstract class Lsp {
   private readonly emitter = new EventEmitter()
+  private readonly process = this.spawnProcess()
+  private readonly reader = new StreamMessageReader(this.process.stdout)
+  private readonly writer = new StreamMessageWriter(this.process.stdin)
 
-  constructor(private readonly process: LspChildProcess) {
-    this.reader = new StreamMessageReader(process.stdout)
-    this.writer = new StreamMessageWriter(process.stdin)
-
-    process.on("error", (error) => this.emitter.emit("error", error))
-    process.on("exit", (code, signal) => this.emitter.emit("exit", code, signal))
+  constructor() {
+    this.process.on("error", (error) => this.emitter.emit("error", error))
+    this.process.on("exit", (code, signal) => this.emitter.emit("exit", code, signal))
 
     this.reader.onError((error) => this.emitter.emit("error", error))
     this.reader.listen((message) => this.emitter.emit("message", message))
   }
+
+  /** Spawns the language server process this instance communicates with. */
+  protected abstract spawnProcess(): LspChildProcess
 
   /** Writes a message to the language server. */
   send(message: Message): void {
