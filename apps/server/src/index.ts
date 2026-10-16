@@ -3,14 +3,14 @@ import { createServer } from "node:http"
 import express from "express"
 
 import { PORT } from "./config.js"
-import { createEditorWss } from "./servers/editor-wss.js"
-import { createLspWss } from "./servers/lsp-manager-wss.js"
+import { createEditorWss } from "./editor/editor-wss.js"
+import { createLspWsProxy } from "./lsps/lsp-ws-proxy.js"
 
 const app = express()
 const server = createServer(app)
 
 const editorWss = createEditorWss()
-const lspWss = createLspWss()
+const lspWss = createLspWsProxy()
 
 server.on("upgrade", (req, socket, head) => {
   if (!req.url) {

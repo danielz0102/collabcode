@@ -1,10 +1,10 @@
 import { ErrorCodes, Message } from "vscode-jsonrpc"
 import { WebSocketServer, type RawData } from "ws"
 
-import { Lsp } from "../lsps/lsp.js"
-import { spawnTypescriptLspProcess } from "../lsps/typescript-lsp.js"
+import { Lsp } from "./lsp.js"
+import { spawnTypescriptLspProcess } from "./typescript-lsp.js"
 
-export function createLspWss() {
+export function createLspWsProxy() {
   const wss = new WebSocketServer({ noServer: true })
 
   wss.on("connection", (ws, req) => {
