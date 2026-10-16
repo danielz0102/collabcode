@@ -3,11 +3,6 @@ import { WebSocketServer, type RawData } from "ws"
 
 import { Lsp } from "../lsps/lsp.js"
 import { spawnTypescriptLspProcess } from "../lsps/typescript-lsp.js"
-import {
-  handledUnsupportedRequest,
-  isUnsupportedRequest,
-  type UnsupportedRequest,
-} from "../lsps/unsupported-server-requests.js"
 
 export function createLspWss() {
   const wss = new WebSocketServer({ noServer: true })
@@ -16,11 +11,6 @@ export function createLspWss() {
     console.log(`LSP client connected from ${req.socket.remoteAddress}`)
 
     const lsp = new Lsp(spawnTypescriptLspProcess())
-
-    const interceptUnsupportedRequest = (req: UnsupportedRequest): void => {
-      const result = handledUnsupportedRequest(req)
-      lsp.send({ jsonrpc: "2.0", id: req.id, result } as unknown as Message)
-    }
 
     lsp.onError((error) => {
       console.error(error)
@@ -34,11 +24,6 @@ export function createLspWss() {
     })
 
     lsp.onMessage((message) => {
-      if (isUnsupportedRequest(message)) {
-        interceptUnsupportedRequest(message)
-        return
-      }
-
       if (ws.readyState === ws.OPEN) {
         ws.send(JSON.stringify(message))
       }
