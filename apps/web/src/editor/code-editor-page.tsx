@@ -43,6 +43,7 @@ function CodeEditor() {
             documentUri: "file:///main.ts",
             languageId: "typescript",
             allowHTMLContent: true,
+            codeActionsEnabled: false,
           }),
         ]}
         theme={vscodeDark}
